@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include "Parser.hpp"
+#include "../Utils.hpp"
 
 Opening::Parser::Parser(const std::string& fileName) {
     this->parse(fileName);
@@ -32,8 +33,8 @@ void Opening::Parser::parse(const std::string& fileName) {
     getColorFromName();
     this->description_ = retrieveLineContent(fs);
     const auto& moves = retrieveLineContent(fs);
-    for (const auto& m : splitString(moves, ';')) {
-        const auto& p = splitString(m, ',');
+    for (const auto& m : ChessTrainer::Utils::splitString(moves, ';')) {
+        const auto& p = ChessTrainer::Utils::splitString(m, ',');
         if (p.size() != 2)
             throw std::invalid_argument(
                 "malformed file: invalid move '" + m + "'");
@@ -49,16 +50,6 @@ std::string Opening::Parser::retrieveLineContent(std::ifstream& stream) {
         throw std::invalid_argument("malformed file: missing '['");
     line.erase(line.begin(), line.begin() + 1);
     return line;
-}
-
-std::vector<std::string> Opening::Parser::splitString(const std::string& rawInput,
-                                                      char delim) {
-    std::string buff;
-    std::stringstream ss(rawInput);
-    std::vector<std::string> tokens;
-    while (std::getline(ss, buff, delim))
-        tokens.push_back(buff);
-    return tokens;
 }
 
 std::string Opening::Parser::getName() const {

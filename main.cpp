@@ -10,45 +10,74 @@
 int main() {
     //Shell s;
     //s.run();
-    //Board b(IPiece::Color::White);
-    //ChessTrainer::Notation::FEN b("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    //ChessTrainer::Notation::FEN r(b.getBoard());
-    //r.getBoard().print();
-    //ChessTrainer::Notation::FEN c("1k6/4R3/1B5p/8/p7/6P1/PP6/3R2K1 w - - 0 42");
-    //ChessTrainer::Notation::FEN f(c.getBoard());
-    //f.getBoard().print();
-    //std::cout << f.getFen() << std::endl;
-    //ChessTrainer::Notation::FEN b("r1b1kbn1/3pN3/p4p2/1BpPp2p/QP2P3/8/PP3PPP/RNB2RK1 b - - 0 15", IPiece::Color::White);
-    //b.getBoard().print();
-    //b.getBoard().setChessColorSide(IPiece::Color::White);
-    //b.getBoard().print();
-    //ChessTrainer::Notation::FEN
-    //    a("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    //ChessTrainer::Notation::FEN e("8/3p4/8/8/8/8/8/8 b KQkq - 0 1");
-    //a.getBoard().print();
-    //ChessTrainer::Notation::FEN r("r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3");
-    //ChessTrainer::Notation::FEN g("r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R w KQkq d3 0 3");
 
-/*
-[Event "F/S Return Match"]
-[Site "Belgrade, Serbia JUG"]
-[Date "1992.11.04"]
-[Round "29"]
-[White "Fischer, Robert J."]
-[Black "Spassky, Boris V."]
-[Result "1/2-1/2"]
+    //ChessTrainer::Notation::PGN pgn("[Event \"Super event\"]\n"
+    //                              "[Site \"France\"]\n"
+    //                              "[Date \"2021.04.07\"]\n"
+    //                              "[Round \"2\"]\n"
+    //                              "[White \"White user\"]\n"
+    //                              "[Black \"Black user\"]\n"
+    //                              "[Result \"*\"]\n"
+    //                              "[WhiteElo \"999\"]\n"
+    //                              "[BlackElo \"998\"]\n"
+    //                              "[TimeControl \"5 + 1\"]\n"
+    //                              "[Termination \"\"]\n"
+    //                              "\n"
+    //                              "1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Nxd4 Bc5 5. Be3 Qf6 6. c3 *");
 
-1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 {This opening is called the Ruy Lopez.}
-4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7
-11. c4 c6 12. cxb5 axb5 13. Nc3 Bb7 14. Bg5 b4 15. Nb1 h6 16. Bh4 c5 17. dxe5
-Nxe4 18. Bxe7 Qxe7 19. exd6 Qf6 20. Nbd2 Nxd6 21. Nc4 Nxc4 22. Bxc4 Nb6
-23. Ne5 Rae8 24. Bxf7+ Rxf7 25. Nxf7 Rxe1+ 26. Qxe1 Kxf7 27. Qe3 Qg5 28. Qxg5
-hxg5 29. b3 Ke6 30. a3 Kd6 31. axb4 cxb4 32. Ra5 Nd5 33. f3 Bc8 34. Kf2 Bf5
-35. Ra7 g6 36. Ra6+ Kc5 37. Ke1 Nf4 38. g3 Nxh3 39. Kd2 Kb5 40. Rd6 Kc5 41. Ra6
-Nf2 42. g4 Bd3 43. Re6 1/2-1/2
- */
+    ChessTrainer::Notation::FEN fen("8/8/8/4R3/8/8/8/8 w - - 0 1");
+    Board b(fen.getBoard());
 
-    ChessTrainer::Notation::PGN a("[Event \"F/S Return Match\"]\n"
-                                  "[Site \"Belgrade, Serbia JUG\"]");
+    const auto& test_move =
+        [&](const IPiece& piece, const Coordinates& coord, bool pass) {
+            if (b.canMove(piece, coord) != pass)
+                std::cerr << "Pass failed: should be " << std::boolalpha << pass
+                          << " but is " << !pass << " instead. Coordinates: "
+                          << coord << std::endl;
+            else
+                std::cout << "Test " << coord << " passed" << std::endl;
+        };
+
+    test_move(Rock(IPiece::Color::White), Coordinates{"f5"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"g5"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"h5"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"d5"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"a5"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"b5"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"c5"}, true);
+
+    test_move(Rock(IPiece::Color::White), Coordinates{"e4"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"e3"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"e2"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"e1"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"e6"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"e7"}, true);
+    test_move(Rock(IPiece::Color::White), Coordinates{"e8"}, true);
+
+    test_move(Rock(IPiece::Color::White), Coordinates{"f4"}, false);
+    test_move(Rock(IPiece::Color::White), Coordinates{"d4"}, false);
+    test_move(Rock(IPiece::Color::White), Coordinates{"d6"}, false);
+    test_move(Rock(IPiece::Color::White), Coordinates{"c7"}, false);
+    test_move(Rock(IPiece::Color::White), Coordinates{"f6"}, false);
+
+    //test_move(Queen(IPiece::Color::White), Coordinates{"e4"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"d5"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"d4"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"d6"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"f6"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"f5"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"e6"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"f6"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"h8"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"a1"}, true);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"h5"}, true);
+    //
+    //test_move(Queen(IPiece::Color::White), Coordinates{"g4"}, false);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"f3"}, false);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"h4"}, false);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"h3"}, false);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"a4"}, false);
+    //test_move(Queen(IPiece::Color::White), Coordinates{"b4"}, false);
+    //printf("The piece can move: %i\n", b.canMove(Pawn(IPiece::Color::Black), Coordinates{"e4"}));
     return 0;
 }

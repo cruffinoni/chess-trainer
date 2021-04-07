@@ -52,10 +52,14 @@ char IPiece::getDiminutive() const {
 std::string IPiece::getStringDiminutive() const {
     return (std::string(1, this->getDiminutive()));
 }
-std::vector<int> IPiece::getMoves() const {
-    return {};
+
+bool IPiece::operator==(const IPiece& a) const {
+    return this->color_ == a.color_ && this->diminutive_ == a.diminutive_;
 }
 
-int IPiece::generateMoveFromCoord(int x, int y) {
-    return x + (y - 1) * 8;
+bool IPiece::operator!=(const IPiece& a) const {
+    return !(a == *this);
+}
+std::vector<int> IPiece::getMoves(int fromIdx) const {
+    return {};
 }

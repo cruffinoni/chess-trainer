@@ -21,6 +21,7 @@ class Coordinates {
         uint8_t y;
     };
     Coordinates();
+    Coordinates(int boardIdx);
     Coordinates(uint8_t x, uint8_t y);
     explicit Coordinates(const Vector2D& vec);
     explicit Coordinates(const std::string& pos);
@@ -30,6 +31,8 @@ class Coordinates {
     friend std::ostream& operator<<(std::ostream& output,
                                     const Coordinates& pos);
     bool operator==(const Coordinates& a) const;
+    bool operator==(int idx) const;
+    friend bool operator==(int idx, const Coordinates& a);
 
     private:
     Vector2D coord_;

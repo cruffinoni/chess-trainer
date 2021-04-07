@@ -23,66 +23,64 @@ class Board {
 
     static const uint8_t BoardSize = 8;
     static const constexpr uint8_t TotalBoardSize = BoardSize * BoardSize;
-    typedef std::array<IPiece, TotalBoardSize> rawBoard_t;
+    typedef std::array<std::shared_ptr<IPiece>, TotalBoardSize> rawBoard_t;
 
     struct Iterator {
-        using pointer = IPiece*;
+        using shared_pointer = std::shared_ptr<IPiece>;
         using reference = Iterator&;
         using difference_type = std::ptrdiff_t;
         using value_type = Iterator;
         using iterator_category = std::random_access_iterator_tag;
 
         public:
-        Iterator(pointer ptr, int idx) : ptr_(ptr), idx_(idx) {}
+        Iterator(const rawBoard_t & board, int idx) : board_(board), idx_(idx) {}
 
         Iterator& operator++() {
-            ptr_++;
             idx_++;
             return *this;
         }
         Iterator operator++(int) {
-            const Iterator tmp = *this;
+            Iterator tmp = *this;
             ++(*this);
             return tmp;
         }
 
         Iterator& operator--() {
-            ptr_--;
             idx_--;
             return *this;
         }
         Iterator operator--(int) {
-            const Iterator tmp = *this;
+            Iterator tmp = *this;
             --(*this);
             return tmp;
         }
 
         Iterator operator+(const int rhs) {
-            this->ptr_ += rhs;
             this->idx_ += rhs;
             return *this;
         }
 
         reference operator+=(const int rhs) {
-            this->ptr_ += rhs;
             this->idx_ += rhs;
             return *this;
         }
 
-        std::pair<IPiece, int> operator*() {
-            return std::make_pair(*this->ptr_, idx_);
+        std::pair<std::shared_ptr<IPiece>, int> operator*() {
+            if (this->idx_ >= TotalBoardSize || this->idx_ < 0)
+                throw std::out_of_range("invalid board range");
+            return std::make_pair(this->board_[idx_], idx_);
         }
 
-        bool operator==(const Iterator& a) {
-            return this->ptr_ == a.ptr_;
+        bool operator==(const Iterator& a) const {
+            return this->idx_ == a.idx_;
         }
 
-        bool operator!=(const Iterator& a) {
-            return this->ptr_ != a.ptr_;
+        bool operator!=(const Iterator& a) const {
+            return this->idx_ != a.idx_;
         }
 
         private:
-        pointer ptr_;
+        rawBoard_t board_;
         int idx_;
     };
 
@@ -95,7 +93,8 @@ class Board {
     void print();
 
     bool movePiece(const Coordinates& from, const Coordinates& to);
-    void setPiece(const Coordinates& pos, const IPiece& piece);
+    void setPiece(const Coordinates& pos, const std::shared_ptr<IPiece>& piece);
+    bool canMove(const IPiece& piece, const Coordinates& to);
     void printAllMoves() const;
     void printLastMove() const;
     uint32_t countMove() const;
@@ -107,21 +106,21 @@ class Board {
     [[nodiscard]] rawBoard_t getRawBoard() const;
 
     Iterator begin() {
-        return Iterator(&this->board_[0], 0);
+        return Iterator(this->board_, 0);
     }
     Iterator end() {
-        return Iterator(&this->board_[TotalBoardSize - 1] + 1, TotalBoardSize);
+        return Iterator(this->board_, TotalBoardSize);
     }
 
     Iterator rbegin() {
-        return Iterator(&this->board_[TotalBoardSize - 1], TotalBoardSize - 1);
+        return Iterator(this->board_, TotalBoardSize - 1);
     }
     Iterator rend() {
-        return Iterator(&this->board_[0] - 1, 0);
+        return Iterator(this->board_, -1);
     }
 
     private:
-    void registerMove(const IPiece& piece,
+    void registerMove(const std::shared_ptr<IPiece>& piece,
                       const Coordinates& from,
                       const Coordinates& to,
                       bool take);

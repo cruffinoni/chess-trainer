@@ -15,11 +15,16 @@ class King : public IPiece {
     explicit King(const Color& color) : IPiece("King",
                                                'K',
                                                color) {};
-    [[nodiscard]] std::vector<int> getMoves() const override {
+    [[nodiscard]] std::vector<int> getMoves(int fromIdx) const override {
         return {
-            generateMoveFromCoord(-1, 1), generateMoveFromCoord(0, 1), generateMoveFromCoord(1, 1),
-            generateMoveFromCoord(-1, 0), generateMoveFromCoord(1, 0),
-            generateMoveFromCoord(-1, -1), generateMoveFromCoord(0, -1), generateMoveFromCoord(1, -1)
+            ChessTrainer::Utils::generateBoardIdxFromCoord(-1, 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(0, 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(1, 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(-1, 0),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(1, 0),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(-1, -1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(0, -1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(1, -1)
         };
     }
 };

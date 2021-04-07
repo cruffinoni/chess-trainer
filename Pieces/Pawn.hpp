@@ -15,8 +15,11 @@ class Pawn : public IPiece {
     explicit Pawn(const Color& color) : IPiece("Pawn",
                                                'P',
                                                color) {};
-    [[nodiscard]] std::vector<int> getMoves() const override {
-        return {generateMoveFromCoord(0, this->color_ == Color::White ? 2 : -2)};
+    [[nodiscard]] std::vector<int> getMoves(int fromIdx) const override {
+        return {ChessTrainer::Utils::generateBoardIdxFromCoord(0,
+                                                               this->color_
+                                                                   == Color::White
+                                                               ? 2 : -2)};
     }
 };
 

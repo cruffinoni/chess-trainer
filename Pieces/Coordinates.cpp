@@ -1,6 +1,6 @@
 
 #include <stdexcept>
-#include <iomanip>
+#include "../Utils.hpp"
 #include "Coordinates.hpp"
 
 Coordinates::Coordinates(uint8_t x, uint8_t y) : coord_(x, y) {}
@@ -16,6 +16,8 @@ Coordinates::Coordinates(const std::string& pos) : coord_(0, 0) {
         throw std::out_of_range("first coordinate must be between 1 & 8");
     this->coord_ = Coordinates::Vector2D(pos[0] - 'a', pos[1] - '0');
 }
+
+Coordinates::Coordinates(int boardIdx) : coord_(boardIdx % 8, boardIdx / 8 + 1) {}
 
 uint8_t Coordinates::getX() const {
     return this->coord_.x;
@@ -36,6 +38,15 @@ std::ostream& operator<<(std::ostream& output, const Coordinates& pos) {
 }
 bool Coordinates::operator==(const Coordinates& a) const {
     return this->coord_.x == a.coord_.x && this->coord_.y == a.coord_.y;
+}
+
+bool Coordinates::operator==(int idx) const {
+    return ChessTrainer::Utils::generateBoardIdxFromCoord(this->getX(),
+                                                          this->getY()) == idx;
+}
+
+bool operator==(int idx, const Coordinates& a) {
+    return a == idx;
 }
 
 Move::Move(const std::string& from, const std::string& to) : from(Coordinates(

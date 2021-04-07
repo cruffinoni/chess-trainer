@@ -27,8 +27,6 @@ namespace Opening {
 
         private:
         void reset();
-        static std::vector<std::string> splitString(const std::string& rawInput,
-                                                    char delim);
         static std::string retrieveLineContent(std::ifstream& stream);
         void getColorFromName();
 

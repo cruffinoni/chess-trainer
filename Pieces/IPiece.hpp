@@ -11,6 +11,7 @@
 
 #include <string>
 #include <vector>
+#include "../Utils.hpp"
 #include "Coordinates.hpp"
 
 class IPiece {
@@ -30,8 +31,13 @@ class IPiece {
     explicit operator bool() const;
     Color getColor() const;
     std::string getColorName(bool firstLetterUpperCase = false) const;
-    virtual std::vector<int> getMoves() const;
-    static int generateMoveFromCoord(int x, int y);
+    [[nodiscard]] virtual std::vector<int> getMoves(int fromIdx) const;
+    bool operator==(const IPiece& a) const;
+    bool operator!=(const IPiece& a) const;
+    friend std::ostream& operator<<(std::ostream& output, const IPiece& p) {
+        output << p.getColorName(true) << " " << p.getName();
+        return output;
+    }
 
     protected:
     Color color_ = Color::None;

@@ -30,7 +30,7 @@ void Board::printWhiteSide() {
             } else {
                 auto board_idx =
                     (BoardSize - row) * BoardSize - (BoardSize - column + 1);
-                std::cout << this->board_[board_idx].getEmbeddedDiminutive()
+                std::cout << this->board_[board_idx]->getEmbeddedDiminutive()
                           << "|";
             }
         }
@@ -54,7 +54,7 @@ void Board::printBlackSide() {
                           << "\033[0m|";
             } else {
                 auto board_idx = (row + 1) * Board::BoardSize - column;
-                std::cout << this->board_[board_idx].getEmbeddedDiminutive()
+                std::cout << this->board_[board_idx]->getEmbeddedDiminutive()
                           << "|";
             }
         }
@@ -81,21 +81,21 @@ bool Board::movePiece(const Coordinates& from, const Coordinates& to) {
                        to,
                        (bool) this->board_[idx_to]);
     this->board_[idx_to] = this->board_[idx_from];
-    this->board_[idx_from] = IPiece();
+    this->board_[idx_from] = std::make_shared<IPiece>();
     return true;
 }
 
-void Board::registerMove(const IPiece& piece,
+void Board::registerMove(const std::shared_ptr<IPiece>& piece,
                          const Coordinates& from,
                          const Coordinates& to,
                          bool take) {
     std::string moveNotation;
-    bool isPawn = piece.getName() == "Pawn";
+    bool isPawn = piece->getName() == "Pawn";
     if (take) {
         moveNotation =
             (isPawn ? std::string(1, from.toStringNotation()[0]) : piece
-                .getStringDiminutive()) + "x" + to.toStringNotation();
-        if (piece.getColor() == IPiece::Color::White)
+                ->getStringDiminutive()) + "x" + to.toStringNotation();
+        if (piece->getColor() == IPiece::Color::White)
             this->move_.emplace_back(std::make_pair(moveNotation, ""));
         else
             this->move_.back().second = moveNotation;
@@ -103,8 +103,8 @@ void Board::registerMove(const IPiece& piece,
         if (isPawn)
             moveNotation = to.toStringNotation();
         else
-            moveNotation = piece.getStringDiminutive() + to.toStringNotation();
-        if (piece.getColor() == IPiece::Color::White)
+            moveNotation = piece->getStringDiminutive() + to.toStringNotation();
+        if (piece->getColor() == IPiece::Color::White)
             this->move_.emplace_back(std::make_pair(moveNotation, ""));
         else
             this->move_.back().second = moveNotation;
@@ -140,11 +140,12 @@ void Board::setChessColorSide(const IPiece::Color& color) {
 }
 
 void Board::clear() {
-    this->board_.fill(IPiece{});
+    this->board_.fill(std::make_shared<IPiece>());
     this->move_.clear();
 }
 
-void Board::setPiece(const Coordinates& pos, const IPiece& piece) {
+void Board::setPiece(const Coordinates& pos,
+                     const std::shared_ptr<IPiece>& piece) {
     this->board_[Board::getBoardIdxFromCoordinates(pos)] = piece;
 }
 
@@ -167,4 +168,31 @@ Board::rawBoard_t Board::getRawBoard() const {
 Board::Board(const Board::rawBoard_t& array) {
     this->clear();
     this->board_ = array;
+}
+
+bool Board::canMove(const IPiece& piece, const Coordinates& to) {
+    for (const auto& p: *this) {
+        //std::cout << "Piece: " << *p.first << std::endl;
+        if (*p.first != piece)
+            continue;
+        //std::cout << "Piece found " << *p.first << " at "
+        //          << Coordinates(p.second) << " (" << p.second << ")"
+        //          << std::endl;
+        //std::cout << "User want to go at " << to << std::endl;
+        //for (const auto& m: p.first->getMoves(p.second))
+        //    std::cout << "m = " << m << std::endl;
+        //std::cout << "Idx : " << p.second << std::endl;
+        //std::cout << "To : "
+        //          << ChessTrainer::Utils::generateBoardIdxFromCoord(to.getX(),
+        //                                                            to.getY())
+        //          << std::endl;
+
+        const auto& availableCases = p.first->getMoves(p.second);
+        const auto& canMove = std::find(availableCases.begin(),
+                                        availableCases.end(),
+                                        to);
+        if (canMove != availableCases.end())
+            return true;
+    }
+    return false;
 }

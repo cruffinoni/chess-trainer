@@ -22,8 +22,6 @@ namespace ChessTrainer::Notation {
         bool invalidate(const std::string& reasons);
         bool setColor(const std::string& data);
         bool retrieveTotalMove(const std::string& data);
-        static std::vector<std::string> splitString(const std::string& rawInput,
-                                                    char delim);
         Board board_;
         bool valid_ = true;
         std::string fen_;

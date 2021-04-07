@@ -2,16 +2,7 @@
 #include <algorithm>
 #include <sstream>
 #include "FEN.hpp"
-
-std::vector<std::string> ChessTrainer::Notation::FEN::splitString(const std::string& rawInput,
-                                                                  char delim) {
-    std::string buff;
-    std::stringstream ss(rawInput);
-    std::vector<std::string> tokens;
-    while (std::getline(ss, buff, delim))
-        tokens.push_back(buff);
-    return tokens;
-}
+#include "../../Utils.hpp"
 
 bool ChessTrainer::Notation::FEN::invalidate(const std::string& reasons) {
     std::cerr << "Invalid FEN: " << reasons << std::endl;
@@ -43,14 +34,16 @@ bool ChessTrainer::Notation::FEN::retrieveTotalMove(const std::string& data) {
 
 ChessTrainer::Notation::FEN::FEN(const std::string& input,
                                  const IPiece::Color& forceChessBoardColorSide) {
-    auto split_input = this->splitString(input, '/');
+    auto split_input = ChessTrainer::Utils::splitString(input, '/');
     if (split_input.size() != Board::BoardSize) {
         this->invalidate(
             "invalid board size");
         return;
     }
     const auto
-        & details = this->splitString(split_input[Board::BoardSize - 1], ' ');
+        & details =
+        ChessTrainer::Utils::splitString(split_input[Board::BoardSize - 1],
+                                         ' ');
     if (details.size() != 6) {
         this->invalidate("missing game details");
         return;
@@ -73,38 +66,44 @@ ChessTrainer::Notation::FEN::FEN(const std::string& input,
                 case 'r':
                 case 'R':
                     this->board_.setPiece(Coordinates{nb_idx, k},
-                                          Rock(c == 'R' ? IPiece::Color::White
-                                                        : IPiece::Color::Black));
+                                          std::make_shared<Rock>(
+                                              c == 'R' ? IPiece::Color::White
+                                                       : IPiece::Color::Black));
                     break;
                 case 'k':
                 case 'K':
                     this->board_.setPiece(Coordinates{nb_idx, k},
-                                          King(c == 'K' ? IPiece::Color::White
-                                                        : IPiece::Color::Black));
+                                          std::make_shared<King>(
+                                              c == 'K' ? IPiece::Color::White
+                                                       : IPiece::Color::Black));
                     break;
                 case 'b':
                 case 'B':
                     this->board_.setPiece(Coordinates{nb_idx, k},
-                                          Bishop(c == 'B' ? IPiece::Color::White
-                                                          : IPiece::Color::Black));
+                                          std::make_shared<Bishop>(
+                                              c == 'B' ? IPiece::Color::White
+                                                       : IPiece::Color::Black));
                     break;
                 case 'p':
                 case 'P':
                     this->board_.setPiece(Coordinates{nb_idx, k},
-                                          Pawn(c == 'P' ? IPiece::Color::White
-                                                        : IPiece::Color::Black));
+                                          std::make_shared<Pawn>(
+                                              c == 'P' ? IPiece::Color::White
+                                                       : IPiece::Color::Black));
                     break;
                 case 'n':
                 case 'N':
                     this->board_.setPiece(Coordinates{nb_idx, k},
-                                          Knight(c == 'N' ? IPiece::Color::White
-                                                          : IPiece::Color::Black));
+                                          std::make_shared<Knight>(
+                                              c == 'N' ? IPiece::Color::White
+                                                       : IPiece::Color::Black));
                     break;
                 case 'q':
                 case 'Q':
                     this->board_.setPiece(Coordinates{nb_idx, k},
-                                          Queen(c == 'Q' ? IPiece::Color::White
-                                                         : IPiece::Color::Black));
+                                          std::make_shared<Queen>(
+                                              c == 'Q' ? IPiece::Color::White
+                                                       : IPiece::Color::Black));
                     break;
                 default:
                     this->invalidate(
@@ -137,11 +136,11 @@ ChessTrainer::Notation::FEN::FEN(const Board& board,
                     pass = 0;
                 }
                 char diminutive =
-                    rawBoard[idx].getColor() == IPiece::Color::Black
+                    rawBoard[idx]->getColor() == IPiece::Color::Black
                     ? (char) std::tolower(rawBoard[idx]
-                                              .getDiminutive())
+                                              ->getDiminutive())
                     : (char) std::toupper(rawBoard[idx]
-                                              .getDiminutive());
+                                              ->getDiminutive());
                 this->fen_ += diminutive;
             }
         }

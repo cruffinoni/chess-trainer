@@ -10,14 +10,16 @@
 namespace ChessTrainer::Notation {
     class PGN {
         public:
-        PGN(std::string input);
-        bool isValid() const;
+        using tag = std::pair<std::string, std::string>;
+
+        explicit PGN(std::string input);
+        [[nodiscard]] bool isValid() const;
 
         private:
         bool invalidate(const std::string& reasons);
         bool valid_ = true;
 
-        std::vector<std::pair<std::string, std::string>> tags_;
+        std::vector<tag> tags_;
         constexpr const static char* required_tags_[] = {
             "event",
             "site",
@@ -28,7 +30,7 @@ namespace ChessTrainer::Notation {
             "result"
         };
         Board board_;
-        bool readTags(std::string& line);
+        bool readTags(std::string& input);
     };
 }
 
