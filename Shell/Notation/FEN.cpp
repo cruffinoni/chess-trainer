@@ -56,8 +56,6 @@ ChessTrainer::Notation::FEN::FEN(const std::string& input,
         return;
     }
     split_input[Board::BoardSize - 1] = details[0];
-    printf("Color forced: %i\n",
-           forceChessBoardColorSide != IPiece::Color::None);
     if (!this->setColor(details[1]))
         return;
     if (!this->retrieveTotalMove(details[5]))
