@@ -9,7 +9,7 @@
 #include "../../Help.hpp"
 #include "../../../Opening/Database.hpp"
 
-namespace Command {
+namespace ChessTrainer::Command {
     class Show : public ICommand {
         public:
         explicit Show(const Database& db) : ICommand("show",

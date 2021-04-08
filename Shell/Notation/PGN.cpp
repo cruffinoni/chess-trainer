@@ -85,6 +85,7 @@ ChessTrainer::Notation::PGN::PGN(std::string input)
     std::cout << "Tags:" << std::endl;
     for (const auto& t : this->tags_)
         std::cout << "['" << t.first << "' '" << t.second << "']" << std::endl;
+
 }
 
 bool ChessTrainer::Notation::PGN::isValid() const {

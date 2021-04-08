@@ -13,7 +13,7 @@
 #include "../../../Opening/Database.hpp"
 #include "Variation.hpp"
 
-namespace Command {
+namespace ChessTrainer::Command {
     class Listing : public ICommand {
         public:
         explicit Listing(const Database& db)

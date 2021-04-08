@@ -5,13 +5,14 @@
 #include <cassert>
 #include "Shell.hpp"
 
-Shell::Shell() : helper_(dynamic_cast<Command::Help*>(this->commands_.front()
+ChessTrainer::Shell::Shell() : helper_(dynamic_cast<Command::Help*>(this
+    ->commands_.front()
     .get())) {
     assert(this->helper_ != nullptr);
     this->helper_->generate("ChessTrainer", this->commands_);
 }
 
-void Shell::run() {
+void ChessTrainer::Shell::run() {
     std::string input;
     std::cout
         << "Welcome to ChessTrainer! Train your openings here. Start by typing a command or type 'help' to get a list."
@@ -45,6 +46,6 @@ void Shell::run() {
     }
 }
 
-void Shell::exit() {
+void ChessTrainer::Shell::exit() {
     std::cout << "Thanks for using ChessTrainer. Good luck !" << std::endl;
 }

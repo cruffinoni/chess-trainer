@@ -12,7 +12,7 @@
 #include <memory>
 #include "ICommand.hpp"
 
-namespace Command {
+namespace ChessTrainer::Command {
     class Help : public ICommand {
         public:
         explicit Help(const std::string& message);

@@ -25,8 +25,17 @@ int main() {
     //                              "\n"
     //                              "1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Nxd4 Bc5 5. Be3 Qf6 6. c3 *");
 
-    ChessTrainer::Notation::FEN fen("8/8/8/4Q3/8/8/8/8 w - - 0 1");
-    Board b(fen.getBoard());
+    ChessTrainer::Notation::FEN fen("8/8/8/8/4RP2/8/8/8 w - - 0 1");
+    ChessTrainer::Board b(fen.getBoard());
 
+    std::cout << std::boolalpha
+              << b.canMove(ChessTrainer::Rock(ChessTrainer::IPiece::Color::White),
+                           ChessTrainer::Coordinates("h4")) << std::endl;
+    std::cout << std::boolalpha
+              << b.canMove(ChessTrainer::Rock(ChessTrainer::IPiece::Color::White),
+                           ChessTrainer::Coordinates("g4")) << std::endl;
+    std::cout << std::boolalpha
+              << b.canMove(ChessTrainer::Rock(ChessTrainer::IPiece::Color::White),
+                           ChessTrainer::Coordinates("f4")) << std::endl;
     return 0;
 }

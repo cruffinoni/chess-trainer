@@ -13,7 +13,7 @@
 #include "../Pieces/Coordinates.hpp"
 #include "IOpening.hpp"
 
-namespace Opening {
+namespace ChessTrainer::Opening {
     class Parser {
         public:
         Parser() = default;
@@ -23,7 +23,7 @@ namespace Opening {
         std::vector<Move> getMoves() const;
         std::string getName() const;
         std::string getDescription() const;
-        IPiece::Color getColor() const;
+        ChessTrainer::IPiece::Color getColor() const;
 
         private:
         void reset();
@@ -33,7 +33,7 @@ namespace Opening {
         std::vector<Move> moves_;
         std::string name_;
         std::string description_;
-        IPiece::Color color_;
+        ChessTrainer::IPiece::Color color_;
     };
 }
 

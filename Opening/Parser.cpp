@@ -8,21 +8,19 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
-#include <array>
 #include "Parser.hpp"
-#include "../Utils.hpp"
 
-Opening::Parser::Parser(const std::string& fileName) {
+ChessTrainer::Opening::Parser::Parser(const std::string& fileName) {
     this->parse(fileName);
 }
 
-void Opening::Parser::reset() {
+void ChessTrainer::Opening::Parser::reset() {
     this->moves_.clear();
     this->name_.clear();
     this->description_.clear();
 }
 
-void Opening::Parser::parse(const std::string& fileName) {
+void ChessTrainer::Opening::Parser::parse(const std::string& fileName) {
     this->reset();
     std::ifstream fs(fileName, std::ifstream::in);
     if (!fs.is_open())
@@ -42,7 +40,7 @@ void Opening::Parser::parse(const std::string& fileName) {
     }
 }
 
-std::string Opening::Parser::retrieveLineContent(std::ifstream& stream) {
+std::string ChessTrainer::Opening::Parser::retrieveLineContent(std::ifstream& stream) {
     std::string line;
     std::getline(stream, line, ']');
     line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
@@ -52,21 +50,21 @@ std::string Opening::Parser::retrieveLineContent(std::ifstream& stream) {
     return line;
 }
 
-std::string Opening::Parser::getName() const {
+std::string ChessTrainer::Opening::Parser::getName() const {
     return this->name_;
 }
 
-std::vector<Move> Opening::Parser::getMoves() const {
+std::vector<ChessTrainer::Move> ChessTrainer::Opening::Parser::getMoves() const {
     return this->moves_;
 }
-std::string Opening::Parser::getDescription() const {
+std::string ChessTrainer::Opening::Parser::getDescription() const {
     return this->description_;
 }
 
-void Opening::Parser::getColorFromName() {
+void ChessTrainer::Opening::Parser::getColorFromName() {
     const auto idx = this->name_.find('|');
     if (idx == std::string::npos) {
-        this->color_ = IPiece::Color::White;
+        this->color_ = ChessTrainer::IPiece::Color::White;
         return;
     }
     auto strColor = this->name_.substr(idx + 1);
@@ -74,15 +72,16 @@ void Opening::Parser::getColorFromName() {
                    [](unsigned char c) { return std::tolower(c); });
     this->name_.erase(idx);
     if (strColor == "white")
-        this->color_ = IPiece::Color::White;
+        this->color_ = ChessTrainer::IPiece::Color::White;
     else if (strColor == "black")
-        this->color_ = IPiece::Color::Black;
+        this->color_ = ChessTrainer::IPiece::Color::Black;
     else {
         std::cerr << "Invalid color: '" << strColor
                   << "'. it might be non-volunteer" << std::endl;
-        this->color_ = IPiece::Color::White;
+        this->color_ = ChessTrainer::IPiece::Color::White;
     }
 }
-IPiece::Color Opening::Parser::getColor() const {
+
+ChessTrainer::IPiece::Color ChessTrainer::Opening::Parser::getColor() const {
     return this->color_;
 }

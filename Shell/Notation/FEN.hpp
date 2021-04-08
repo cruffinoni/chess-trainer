@@ -11,8 +11,10 @@ namespace ChessTrainer::Notation {
         public:
         static constexpr const char* DefaultBoard =
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-        explicit FEN(const std::string& input, const IPiece::Color& forceChessBoardColorSide = IPiece::Color::None);
-        explicit FEN(const Board& board, const IPiece::Color& forceChessBoardColorSide = IPiece::Color::None);
+        explicit FEN(const std::string& input,
+                     const IPiece::Color& forceChessBoardColorSide = IPiece::Color::None);
+        explicit FEN(const Board& board,
+                     const IPiece::Color& forceChessBoardColorSide = IPiece::Color::None);
         Board& getBoard();
         void setChessBoardSide(const IPiece::Color& color);
         bool isValid() const;

@@ -11,7 +11,7 @@
 #include <vector>
 #include <string>
 
-namespace Command {
+namespace ChessTrainer::Command {
     class ICommand {
         public:
         explicit ICommand(const std::string& name,

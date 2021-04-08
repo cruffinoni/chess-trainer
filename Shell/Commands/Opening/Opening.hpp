@@ -17,7 +17,7 @@
 #include "Show.hpp"
 #include "../../../Opening/Database.hpp"
 
-namespace Command {
+namespace ChessTrainer::Command {
     class Opening : public ICommand {
         public:
         Opening() : ICommand("opening", "Interact with the different opening"),

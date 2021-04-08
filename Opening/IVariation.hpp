@@ -12,16 +12,18 @@
 #include <string>
 #include "../Pieces/Coordinates.hpp"
 
-class IVariation {
-    public:
-    IVariation(const std::string& name, const std::vector<Move>& moves);
-    std::vector<Move> getMoves() const;
-    std::string getName() const;
-    uint32_t countMoves() const;
+namespace ChessTrainer {
+    class IVariation {
+        public:
+        IVariation(const std::string& name, const std::vector<Move>& moves);
+        std::vector<Move> getMoves() const;
+        std::string getName() const;
+        uint32_t countMoves() const;
 
-    private:
-    std::string name_;
-    std::vector<Move> moves_;
-};
+        private:
+        std::string name_;
+        std::vector<Move> moves_;
+    };
+}
 
 #endif //CHESSTRAINER_OPENING_IVARIATION_HPP_

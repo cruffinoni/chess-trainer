@@ -35,20 +35,20 @@ bool ChessTrainer::Notation::FEN::retrieveTotalMove(const std::string& data) {
 ChessTrainer::Notation::FEN::FEN(const std::string& input,
                                  const IPiece::Color& forceChessBoardColorSide) {
     auto split_input = ChessTrainer::Utils::splitString(input, '/');
-    if (split_input.size() != Board::BoardSize) {
+    if (split_input.size() != Utils::BoardSize) {
         this->invalidate(
             "invalid board size");
         return;
     }
     const auto
         & details =
-        ChessTrainer::Utils::splitString(split_input[Board::BoardSize - 1],
+        ChessTrainer::Utils::splitString(split_input[Utils::BoardSize - 1],
                                          ' ');
     if (details.size() != 6) {
         this->invalidate("missing game details");
         return;
     }
-    split_input[Board::BoardSize - 1] = details[0];
+    split_input[Utils::BoardSize - 1] = details[0];
     if (!this->setColor(details[1]))
         return;
     if (!this->retrieveTotalMove(details[5]))
@@ -61,7 +61,7 @@ ChessTrainer::Notation::FEN::FEN(const std::string& input,
                 nb_idx += c - '0';
                 continue;
             }
-            const uint8_t k = Board::BoardSize - nb_line;
+            const uint8_t k = Utils::BoardSize - nb_line;
             switch (c) {
                 case 'r':
                 case 'R':
@@ -124,9 +124,9 @@ ChessTrainer::Notation::FEN::FEN(const Board& board,
                                  const IPiece::Color& forceChessBoardColorSide) {
     const auto& rawBoard = board.getRawBoard();
     uint8_t pass = 0;
-    for (int i = Board::TotalBoardSize - Board::BoardSize; i >= 0;
-         i -= Board::BoardSize) {
-        for (int j = 0; j < Board::BoardSize; j++) {
+    for (int i = Utils::TotalBoardSize - Utils::BoardSize; i >= 0;
+         i -= Utils::BoardSize) {
+        for (int j = 0; j < Utils::BoardSize; j++) {
             const auto idx = i + j;
             if (!rawBoard[idx]) {
                 pass++;
@@ -163,7 +163,7 @@ ChessTrainer::Notation::FEN::FEN(const Board& board,
     this->fen_ += " KQkq - 0 " + std::to_string(this->board_.getTotalMoves());
 }
 
-Board& ChessTrainer::Notation::FEN::getBoard() {
+ChessTrainer::Board& ChessTrainer::Notation::FEN::getBoard() {
     return this->board_;
 }
 
