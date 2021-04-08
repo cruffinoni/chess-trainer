@@ -2,6 +2,7 @@
 #ifndef CHESSTRAINER__BOARD_HPP_
 #define CHESSTRAINER__BOARD_HPP_
 
+#include <memory>
 #include <vector>
 #include <array>
 #include "Pieces/IPiece.hpp"

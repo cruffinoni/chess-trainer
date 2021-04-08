@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ChessTrainer
-** File description:
-** TODO: CHANGE DESCRIPTION.
-*/
 
 #ifndef CHESSTRAINER_PIECES_ROCK_HPP_
 #define CHESSTRAINER_PIECES_ROCK_HPP_

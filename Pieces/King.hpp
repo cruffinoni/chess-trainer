@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ChessTrainer
-** File description:
-** TODO: CHANGE DESCRIPTION.
-*/
 
 #ifndef CHESSTRAINER_PIECES_KING_HPP_
 #define CHESSTRAINER_PIECES_KING_HPP_
@@ -14,17 +8,27 @@ class King : public IPiece {
     public:
     explicit King(const Color& color) : IPiece("King",
                                                'K',
-                                               color) {};
+                                               color) {
+    };
     [[nodiscard]] std::vector<int> getMoves(int fromIdx) const override {
+        const Coordinates coord(fromIdx);
         return {
-            ChessTrainer::Utils::generateBoardIdxFromCoord(-1, 1),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(0, 1),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(1, 1),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(-1, 0),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(1, 0),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(-1, -1),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(0, -1),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(1, -1)
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() - 1,
+                                                           coord.getY() + 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX(),
+                                                           coord.getY() + 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() + 1,
+                                                           coord.getY() + 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() - 1,
+                                                           coord.getY()),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() + 1,
+                                                           coord.getY()),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() - 1,
+                                                           coord.getY() - 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX(),
+                                                           coord.getY() - 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() + 1,
+                                                           coord.getY() - 1)
         };
     }
 };

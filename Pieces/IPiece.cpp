@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ChessTrainer
-** File description:
-** TODO: CHANGE DESCRIPTION.
-*/
 
 #include "IPiece.hpp"
 
@@ -58,7 +52,7 @@ bool IPiece::operator==(const IPiece& a) const {
 }
 
 bool IPiece::operator!=(const IPiece& a) const {
-    return !(a == *this);
+    return this->color_ != a.color_ || this->diminutive_ != a.diminutive_;
 }
 std::vector<int> IPiece::getMoves(int fromIdx) const {
     return {};

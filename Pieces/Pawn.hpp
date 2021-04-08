@@ -19,7 +19,7 @@ class Pawn : public IPiece {
         return {ChessTrainer::Utils::generateBoardIdxFromCoord(0,
                                                                this->color_
                                                                    == Color::White
-                                                               ? 2 : -2)};
+                                                               ? fromIdx + 2 : fromIdx - 2)};
     }
 };
 

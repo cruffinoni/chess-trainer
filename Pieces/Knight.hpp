@@ -16,15 +16,16 @@ class Knight : public IPiece {
                                                  'N',
                                                  color) {};
     [[nodiscard]] std::vector<int> getMoves(int fromIdx) const override {
+        const Coordinates coord(fromIdx);
         return {
-            ChessTrainer::Utils::generateBoardIdxFromCoord(3, -1),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(3, 1),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(1, 3),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(-1, 3),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(-3, 1),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(-3, -1),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(-1, -3),
-            ChessTrainer::Utils::generateBoardIdxFromCoord(1, -3),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() + 3, coord.getY() - 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() + 3, coord.getY() + 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() + 1, coord.getY() + 3),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() - 1, coord.getY() + 3),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() - 3, coord.getY() + 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() - 3, coord.getY() - 1),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() - 1, coord.getY() - 3),
+            ChessTrainer::Utils::generateBoardIdxFromCoord(coord.getX() + 1, coord.getY() - 3),
         };
     }
 };

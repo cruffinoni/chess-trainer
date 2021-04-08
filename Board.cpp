@@ -187,6 +187,7 @@ bool Board::canMove(const IPiece& piece, const Coordinates& to) {
         //                                                            to.getY())
         //          << std::endl;
 
+        //std::cout << "Ggo to " << ChessTrainer::Utils::generateBoardIdxFromCoord(to.getX(), to.getY()) << std::endl;
         const auto& availableCases = p.first->getMoves(p.second);
         const auto& canMove = std::find(availableCases.begin(),
                                         availableCases.end(),

@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ChessTrainer
-** File description:
-** TODO: CHANGE DESCRIPTION.
-*/
 
 #ifndef CHESSTRAINER_PIECES_BISHOP_HPP_
 #define CHESSTRAINER_PIECES_BISHOP_HPP_
@@ -21,26 +15,26 @@ class Bishop : public IPiece {
         const int behind_x = fromIdx % 8;
         const int behind_y = fromIdx / 8;
 
-        for (int i = 0; i < behind_x; ++i) {
+        for (int i = 1; i <= behind_y; ++i) {
             vector.emplace_back(ChessTrainer::Utils::generateBoardIdxFromCoord(
                 pos.getX() - i,
                 pos.getY() - i));
         }
-        for (int i = 0, j = 8 - behind_x; i < j; ++i) {
+        for (int i = 1, j = 8 - behind_y; i < j ;++i) {
             vector.emplace_back(ChessTrainer::Utils::generateBoardIdxFromCoord(
                 pos.getX() + i,
                 pos.getY() + i));
         }
 
-        for (int i = 1; i <= behind_y; ++i) {
+        for (int i = 1; i <= behind_x; ++i) {
             vector.emplace_back(ChessTrainer::Utils::generateBoardIdxFromCoord(
-                pos.getX(),
-                pos.getY() - i));
-        }
-        for (int i = 1, j = 8 - behind_y; i < j; ++i) {
-            vector.emplace_back(ChessTrainer::Utils::generateBoardIdxFromCoord(
-                pos.getX(),
+                pos.getX() - i,
                 pos.getY() + i));
+        }
+        for (int i = 1, j = 8 - behind_x; i < j ;++i) {
+            vector.emplace_back(ChessTrainer::Utils::generateBoardIdxFromCoord(
+                pos.getX() + i,
+                pos.getY() - i));
         }
         return vector;
     };

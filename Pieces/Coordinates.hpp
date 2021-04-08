@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ChessTrainer
-** File description:
-** TODO: CHANGE DESCRIPTION.
-*/
-
 
 #ifndef SRC_CHESSTRAINER_COORDINATES
 #define SRC_CHESSTRAINER_COORDINATES
