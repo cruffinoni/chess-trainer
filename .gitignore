@@ -34,3 +34,5 @@
 # IDE
 .idea/
 cmake-build-debug/
+out/
+.vs

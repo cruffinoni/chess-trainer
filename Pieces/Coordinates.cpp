@@ -4,8 +4,8 @@
 #include "Coordinates.hpp"
 
 void ChessTrainer::Coordinates::validateCoordinates() const {
-    if (this->coord_.x >= Utils::BoardSize
-        || this->coord_.y >= Utils::BoardSize)
+    if (this->coord_.x > Utils::BoardSize
+        || this->coord_.y > Utils::BoardSize)
         throw std::out_of_range(std::string(
             "invalid coordinates: out of range [" + std::to_string(this->coord_.x) + ","
                 + std::to_string(this->coord_.y) + "]"));

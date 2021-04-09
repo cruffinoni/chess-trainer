@@ -12,12 +12,14 @@ namespace ChessTrainer::Notation {
         public:
         using tag = std::pair<std::string, std::string>;
 
-        explicit PGN(std::string input);
+        explicit PGN(const std::string& input);
         [[nodiscard]] bool isValid() const;
 
         private:
         bool invalidate(const std::string& reasons);
         bool valid_ = true;
+        void readMoves(const std::string& input,
+                       unsigned skippedChars);
 
         std::vector<tag> tags_;
         constexpr const static char* required_tags_[] = {
@@ -30,7 +32,7 @@ namespace ChessTrainer::Notation {
             "result"
         };
         Board board_;
-        bool readTags(std::string& input);
+        unsigned int readTags(const std::string& input);
     };
 }
 

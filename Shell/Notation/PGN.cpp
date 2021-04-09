@@ -3,16 +3,32 @@
 #include "PGN.hpp"
 #include "../../Utils.hpp"
 
-bool ChessTrainer::Notation::PGN::readTags(std::string& input) {
+void ChessTrainer::Notation::PGN::readMoves(const std::string& input,
+                                            unsigned skippedChars) {
+    int lastMove = 0;
+    auto charIte = input.begin();
+    std::advance(charIte, skippedChars);
+
+    std::cout << ">";
+    for (auto end = input.end(); charIte != end; ++charIte) {
+        const auto& c = *charIte;
+        std::cout << c;
+    }
+    std::cout << "<" << std::endl;
+}
+
+unsigned int ChessTrainer::Notation::PGN::readTags(const std::string& input) {
     bool tagOpened = false;
     bool tagContentOpened = false;
     std::string tagContent;
     std::string tagTitle;
     const auto& lines = ChessTrainer::Utils::splitString(input, '\n');
+    unsigned int skipChars = 0;
 
     for (const auto& line: lines) {
         if (line.empty())
             break;
+        skipChars += line.length();
         for (const auto& c: line) {
             if (c == '[') {
                 if (tagOpened)
@@ -67,7 +83,7 @@ bool ChessTrainer::Notation::PGN::readTags(std::string& input) {
             return this->invalidate(
                 "required tag '" + std::string(rTag) + "' is missing");
     }
-    return true;
+    return skipChars;
 }
 
 bool ChessTrainer::Notation::PGN::invalidate(const std::string& reasons) {
@@ -78,14 +94,16 @@ bool ChessTrainer::Notation::PGN::invalidate(const std::string& reasons) {
     return false;
 }
 
-ChessTrainer::Notation::PGN::PGN(std::string input)
+ChessTrainer::Notation::PGN::PGN(const std::string& input)
     : board_(IPiece::Color::White) {
-    this->readTags(input);
+    const auto skippedChars = this->readTags(input);
 
-    std::cout << "Tags:" << std::endl;
-    for (const auto& t : this->tags_)
-        std::cout << "['" << t.first << "' '" << t.second << "']" << std::endl;
-
+    //std::cout << "Tags:" << std::endl;
+    //for (const auto& t : this->tags_)
+    //    std::cout << "['" << t.first << "' '" << t.second << "']" << std::endl;
+    if (!this->valid_)
+        return;
+    this->readMoves(input, skippedChars);
 }
 
 bool ChessTrainer::Notation::PGN::isValid() const {
