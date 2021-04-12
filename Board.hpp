@@ -107,6 +107,27 @@ namespace ChessTrainer {
         void clear();
         [[nodiscard]] ChessTrainer::IPiece::rawBoard_t getRawBoard() const;
 
+        // Game state
+        typedef uint16_t gameState_t;
+        enum gameState_e : gameState_t {
+            IN_PROGRESS = 1,
+            ENDED = 0b10,
+            // Who's the winner?
+            BLACK = 0b100,
+            WHITE = 0b1000,
+            DRAW = 0b10000,
+
+            // Early game ending?
+            TIMEOUT = 0b100000,
+            RESIGN = 0b100000,
+        };
+        void setGameState(gameState_t state);
+        void addGameState(gameState_t state);
+        [[nodiscard]] gameState_t getGameState() const;
+        [[nodiscard]] std::string getGameStateName() const;
+
+
+        // Iterator
         Iterator begin() {
             return Iterator(this->board_, 0);
         }
@@ -136,6 +157,7 @@ namespace ChessTrainer {
             chessSide_{ChessTrainer::IPiece::Color::White};
         void printWhiteSide();
         void printBlackSide();
+        gameState_t state_{IN_PROGRESS};
     };
 
 }

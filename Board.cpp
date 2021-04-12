@@ -209,3 +209,29 @@ bool ChessTrainer::Board::canMove(const ChessTrainer::IPiece& piece,
     }
     return false;
 }
+
+ChessTrainer::Board::gameState_t ChessTrainer::Board::getGameState() const {
+    return this->state_;
+}
+
+void ChessTrainer::Board::setGameState(ChessTrainer::Board::gameState_t state) {
+    this->state_ = state;
+}
+
+void ChessTrainer::Board::addGameState(ChessTrainer::Board::gameState_t state) {
+    this->state_ |= state;
+}
+
+std::string ChessTrainer::Board::getGameStateName() const {
+    if (this->state_ & gameState_e::IN_PROGRESS)
+        return "In progress";
+    else if (this->state_ & gameState_e::DRAW)
+        return "Draw";
+    else if (this->state_ & gameState_e::ENDED) {
+        if (this->state_ & gameState_e::WHITE)
+            return "White won";
+        else
+            return "Black won";
+    }
+    return "(unknown state)";
+}
