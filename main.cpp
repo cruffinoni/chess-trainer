@@ -22,8 +22,12 @@ int main() {
                                   "[TimeControl \"5 + 1\"]\n"
                                   "[Termination \"\"]\n"
                                   "\n"
-                                    "1. c4 {[%timestamp 1]} 1... e6 {[%timestamp 1]} 2. Nf3 Nc6 *");
+                                    "1. e4 Nc6 2. h3 e5 *");
+                                    //"1. Qxg8+ e5 2. e4 e5 *");
+    pgn.getBoard().print();
     // 1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Nxd4 Bc5 5. Be3 Qf6 6. c3 *
+    // Qxg8+
+    // Rfe1
     // 1. c4 {[%timestamp 1]} 1... e6 {[%timestamp 1]} 2. Nc3 {[%timestamp 116]} 2...
     /*
      * 1-0 0-1 1/2-1/2

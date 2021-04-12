@@ -26,7 +26,7 @@ namespace ChessTrainer {
                                                                    fromIdx
                                                                        - (this->moved_ ? 1 : 2))};
         }
-        void onMove(const Coordinates &to) override {
+        void onMove(const Coordinates&) override {
             this->moved_ = true;
         }
 

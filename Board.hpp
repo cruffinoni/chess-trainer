@@ -91,9 +91,10 @@ namespace ChessTrainer {
         ~Board() = default;
         Board(const Board& b) = default;
 
-        void print();
+        void print() const;
 
         bool movePiece(const Coordinates& from, const Coordinates& to);
+        bool movePiece(const ChessTrainer::IPiece& piece, const Coordinates& to);
         void setPiece(const Coordinates& pos,
                       const std::shared_ptr<ChessTrainer::IPiece>& piece);
         bool canMove(const ChessTrainer::IPiece& piece, const Coordinates& to);
@@ -155,8 +156,8 @@ namespace ChessTrainer {
         uint16_t totalMoves_{};
         ChessTrainer::IPiece::Color
             chessSide_{ChessTrainer::IPiece::Color::White};
-        void printWhiteSide();
-        void printBlackSide();
+        void printWhiteSide() const;
+        void printBlackSide() const;
         gameState_t state_{IN_PROGRESS};
     };
 

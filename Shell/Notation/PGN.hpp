@@ -29,7 +29,9 @@ namespace ChessTrainer::Notation {
                 GAME_RESULT_MISSING,
                 COMMENTARY_MISSING_OPEN_TOKEN,
                 COMMENTARY_MISSING_END_TOKEN,
-                TOO_MUCH_COORDINATES,
+                INVALID_NUMBER_OF_COORDINATES,
+
+                UNKNOWN_PIECE,
                 ILLEGAL_MOVE,
 
 
@@ -41,11 +43,6 @@ namespace ChessTrainer::Notation {
             Error() : Error(NONE, "") {}
             Error(ErrorType parsingError) : Error(parsingError, "") {}
 
-            #ifdef _PGN_NO_ERROR
-                #error "PGN_NO_ERROR is already defined, this shouldn't happens"
-            #else
-                #define _PGN_NO_ERROR (Error())
-            #endif
             friend std::ostream& operator<<(std::ostream& output,
                                             const Error& e) {
                 output << e.toString();
@@ -87,15 +84,18 @@ namespace ChessTrainer::Notation {
                 "game's result is missing",
                 "commentary opening token ('{') is missing",
                 "commentary closing token ('}') is missing",
-                "too much coordinates in '%arg%'",
-                "%arg% is a illegal move"
+                "too much or too few coordinates in '%arg%'",
+                "'%arg%' is an invalid piece notation, please check",
+                "%arg% is an illegal move"
             };
         };
         using tag = std::pair<std::string, std::string>;
 
         explicit PGN(const std::string& input);
         [[nodiscard]] bool isValid() const;
+        const Board getBoard() const;
 
+        // --
         private:
         #ifdef _PGN_CAST_TO_VOID
             #error "_PGN_CAST_TO_VOID is already defined, this shouldn't happens"
@@ -109,15 +109,17 @@ namespace ChessTrainer::Notation {
                                  std::string& buffer);
         void getGameState(const std::string& input);
 
-        ChessTrainer::Notation::PGN::Error readTags(const std::string& input,
-                                                    size_t& skippingChars);
+        size_t readTags(const std::string& input);
         void invalidate();
         void readMoves(const std::string& input);
 
         void applyMove(const std::string& move, int currentMove);
-        void removeComments(std::string &buffer);
+        static void removeComments(std::string &buffer);
         static void removeRecurrentMoveNumber(std::string& buffer,
                                        int move);
+        using pieceData = std::pair<IPiece::shared_ptr, Coordinates>;
+        pieceData getPiece(std::string& move, const IPiece::Color& color);
+        void removeCheckOrMate(std::string& buffer);
 
         std::vector<tag> tags_;
         Error error_;

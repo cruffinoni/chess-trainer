@@ -15,6 +15,7 @@ namespace ChessTrainer {
             White,
             Black
         };
+        using shared_ptr = std::shared_ptr<IPiece>;
         typedef std::array<std::shared_ptr<IPiece>,
                            ChessTrainer::Utils::TotalBoardSize> rawBoard_t;
         virtual ~IPiece() = default;

@@ -15,7 +15,7 @@ ChessTrainer::Board::Board(const ChessTrainer::IPiece::Color& defaultChessColor)
     this->chessSide_ = defaultChessColor;
 }
 
-void ChessTrainer::Board::printWhiteSide() {
+void ChessTrainer::Board::printWhiteSide() const {
     for (uint16_t row = 0; row != ChessTrainer::Utils::BoardSize + 1; ++row) {
         for (uint16_t column = 0; column != ChessTrainer::Utils::BoardSize + 1;
              ++column) {
@@ -42,7 +42,7 @@ void ChessTrainer::Board::printWhiteSide() {
     }
 }
 
-void ChessTrainer::Board::printBlackSide() {
+void ChessTrainer::Board::printBlackSide() const {
     for (uint16_t row = 0, x = ChessTrainer::Utils::BoardSize;
          row != ChessTrainer::Utils::BoardSize + 1; ++row, --x) {
         for (uint16_t column = 0, y = ChessTrainer::Utils::BoardSize;
@@ -70,7 +70,7 @@ void ChessTrainer::Board::printBlackSide() {
     }
 }
 
-void ChessTrainer::Board::print() {
+void ChessTrainer::Board::print() const {
     if (this->chessSide_ == ChessTrainer::IPiece::Color::White)
         this->printWhiteSide();
     else
@@ -85,6 +85,11 @@ bool ChessTrainer::Board::movePiece(const Coordinates& from,
         this->board_[idx_from];
     if (!selectedPiece)
         return false;
+    const auto dynPawn = dynamic_cast<Pawn*>(this->board_[idx_from].get());
+    if (dynPawn != nullptr) {
+        std::cout << "This is a pawn" << std::endl;
+        dynPawn->onMove(to);
+    }
     this->registerMove(selectedPiece,
                        from,
                        to,
@@ -180,6 +185,25 @@ ChessTrainer::Board::Board(const ChessTrainer::IPiece::rawBoard_t& array) {
     this->board_ = array;
 }
 
+bool ChessTrainer::Board::movePiece(const ChessTrainer::IPiece& piece,
+                                    const ChessTrainer::Coordinates& to) {
+    for (const auto& p: *this) {
+        if (*p.first != piece)
+            continue;
+        const auto& availableCases = p.first->getMoves(p.second,
+                                                       this->board_);
+        const auto& canMove = std::find(availableCases.begin(),
+                                        availableCases.end(),
+                                        to);
+        if (canMove == availableCases.end())
+            continue;
+        this->movePiece(Coordinates(p.second), to);
+        return true;
+    }
+    return false;
+}
+
+
 bool ChessTrainer::Board::canMove(const ChessTrainer::IPiece& piece,
                                   const Coordinates& to) {
     for (const auto& p: *this) {
@@ -203,8 +227,8 @@ bool ChessTrainer::Board::canMove(const ChessTrainer::IPiece& piece,
                                                        this->board_);
         const auto& canMove = std::find(availableCases.begin(),
                                         availableCases.end(),
-                                        to);
-        if (canMove != availableCases.end())
+                                        to) != availableCases.end();
+        if (canMove)
             return true;
     }
     return false;

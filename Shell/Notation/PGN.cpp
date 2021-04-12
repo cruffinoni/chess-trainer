@@ -11,10 +11,10 @@ bool ChessTrainer::Notation::PGN::updateCursor(const std::string& input,
     if (moveFound == std::string::npos)
         return false;
     buffer = input.substr(startIdx, moveFound - (startIdx + 1));
-    printf("[%s / %i] Move found: '%s'\n",
-           token.c_str(),
-           currentMove,
-           buffer.c_str());
+    //printf("[%s / %i] Move found: '%s'\n",
+    //       token.c_str(),
+    //       currentMove,
+    //       buffer.c_str());
     startIdx = moveFound;
     return true;
 }
@@ -33,7 +33,7 @@ void ChessTrainer::Notation::PGN::getGameState(
             if (m + s.first.size() != input.size())
                 throw Error(Error::GAME_RESULT_INVALID_PLACEMENT);
             this->board_.setGameState(s.second);
-            std::cout << "State of the game -> "
+            std::cout << "Last move detected ; state of the game -> "
                       << this->board_.getGameStateName() << std::endl;
             return;
         }
@@ -72,20 +72,60 @@ void ChessTrainer::Notation::PGN::removeRecurrentMoveNumber(std::string& buffer,
     removePart(std::to_string(move) + "...");
 }
 
+void ChessTrainer::Notation::PGN::removeCheckOrMate(std::string& buffer) {
+    const auto& pieceIdx = buffer.find_first_of("+#");
+    if (pieceIdx == std::string::npos)
+        return;
+    if (buffer[pieceIdx] == '+')
+        printf("[c/m] in check\n");
+    else
+        printf("[c/m] checkmate\n");
+    buffer.erase(pieceIdx, 1);
+}
+
+ChessTrainer::Notation::PGN::pieceData ChessTrainer::Notation::PGN::getPiece(std::string& move,
+                                                                             const ChessTrainer::IPiece::Color& color) {
+    printf("move: '%s'\n", move.c_str());
+    this->removeCheckOrMate(move);
+    const auto& pieceIdx = move.find_first_of("RQNKB");
+    const Coordinates toCoord{move.substr(move.length() - 2)};
+    //printf("Coordinates to => '%s'\n", toCoord.toStringNotation().c_str());
+    if (pieceIdx == std::string::npos) {
+        return std::make_pair(std::make_shared<Pawn>(color), toCoord);
+    }
+    //printf("Piece: %i => %c\n", pieceIdx, move[pieceIdx]);
+    switch (move[pieceIdx]) {
+        case 'R': return std::make_pair(std::make_shared<Rock>(color), toCoord);
+        case 'K': return std::make_pair(std::make_shared<King>(color), toCoord);
+        case 'N': return std::make_pair(std::make_shared<Knight>(color), toCoord);
+        case 'Q': return std::make_pair(std::make_shared<Queen>(color), toCoord);
+        case 'B': return std::make_pair(std::make_shared<Bishop>(color), toCoord);
+    }
+    throw Error(Error::UNKNOWN_PIECE, move);
+}
+
 void ChessTrainer::Notation::PGN::applyMove(const std::string& move, int currentMove) {
     auto moveCpy = move.substr();
-    this->removeComments(moveCpy);
-    printf("After removing comments: '%s'\n", moveCpy.c_str());
+    removeComments(moveCpy);
+    //printf("After removing comments: '%s'\n", moveCpy.c_str());
     this->removeRecurrentMoveNumber(moveCpy, currentMove);
-    printf("After recurrent move numbers: '%s'\n", moveCpy.c_str());
+    //printf("After recurrent move numbers: '%s'\n", moveCpy.c_str());
     const auto &vector = Utils::splitString(moveCpy, ' ');
     std::vector<std::string> rawCoordinates;
     for (const auto& v: vector)
         if (!v.empty())
             rawCoordinates.push_back(v);
     if (rawCoordinates.size() != 2)
-        throw Error(Error::TOO_MUCH_COORDINATES, move);
-    // Split entre la pièce et la coordonnée
+        throw Error(Error::INVALID_NUMBER_OF_COORDINATES, move);
+
+    IPiece::Color currColor = IPiece::Color::White;
+    for (auto& rc: rawCoordinates) {
+        const auto& piece = getPiece(rc, currColor);
+        std::cout << "Piece detected '" << *piece.first << "' at " << piece.second << std::endl;
+        if (!this->board_.movePiece(*piece.first, piece.second))
+            throw Error(Error::ILLEGAL_MOVE, rc);
+        currColor = IPiece::Color::Black;
+    }
 }
 
 void ChessTrainer::Notation::PGN::readMoves(const std::string& input) {
@@ -100,8 +140,8 @@ void ChessTrainer::Notation::PGN::readMoves(const std::string& input) {
                               cursor,
                               "...",
                               currentMove)) {
+            // TODO: Extraire le dernier move
             getGameState(input);
-            printf("No move left\n");
             return;
         }
         this->applyMove(currentMove, currentTotalMove);
@@ -109,12 +149,12 @@ void ChessTrainer::Notation::PGN::readMoves(const std::string& input) {
     }
 }
 
-ChessTrainer::Notation::PGN::Error ChessTrainer::Notation::PGN::readTags(const std::string& input,
-                                                                         size_t& skippingChars) {
+size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
     bool tagOpened = false;
     bool tagContentOpened = false;
     std::string tagContent;
     std::string tagTitle;
+    size_t skippingChars = 0;
     const auto& lines = ChessTrainer::Utils::splitString(input, '\n');
 
     for (const auto& line: lines) {
@@ -122,18 +162,18 @@ ChessTrainer::Notation::PGN::Error ChessTrainer::Notation::PGN::readTags(const s
         for (const auto& c: line) {
             if (c == '[') {
                 if (tagOpened)
-                    return Error(Error::TAG_ALREADY_OPEN);
+                    throw Error(Error::TAG_ALREADY_OPEN);
                 tagOpened = true;
                 continue;
             } else if (c == '\"') {
                 if (!tagOpened)
-                    return Error(Error::TAG_NOT_OPEN);
+                    throw Error(Error::TAG_NOT_OPEN);
                 tagContentOpened = !tagContentOpened;
                 continue;
             }
             if (c == ']') {
                 if (!tagOpened)
-                    return Error(Error::TAG_EXTRA_CLOSING_TOKEN);
+                    throw Error(Error::TAG_EXTRA_CLOSING_TOKEN);
                 tagOpened = false;
                 this->tags_.emplace_back(tagTitle, tagContent);
                 tagContent = "";
@@ -151,9 +191,9 @@ ChessTrainer::Notation::PGN::Error ChessTrainer::Notation::PGN::readTags(const s
         }
     }
     if (tagContentOpened)
-        return Error(Error::TAG_QUOTE_UNCLOSED);
+        throw Error(Error::TAG_QUOTE_UNCLOSED);
     if (tagOpened)
-        return Error(Error::TAG_NOT_CLOSED);
+        throw Error(Error::TAG_NOT_CLOSED);
     for (const auto& rTag : ChessTrainer::Notation::PGN::required_tags_) {
         std::string strTag = rTag;
         if (std::find_if(this->tags_.begin(),
@@ -168,9 +208,9 @@ ChessTrainer::Notation::PGN::Error ChessTrainer::Notation::PGN::readTags(const s
                                             });
                              return tagName == strTag;
                          }) == this->tags_.end())
-            return Error(Error::TAG_MANDATORY_MISSING, strTag);
+            throw Error(Error::TAG_MANDATORY_MISSING, strTag);
     }
-    return _PGN_NO_ERROR;
+    return skippingChars;
 }
 
 void ChessTrainer::Notation::PGN::invalidate() {
@@ -187,9 +227,7 @@ ChessTrainer::Notation::PGN::PGN(const std::string& input)
     : board_(IPiece::Color::White) {
 
     try {
-        std::size_t skippingChars = 0;
-        this->error_ = this->readTags(input, skippingChars);
-
+        std::size_t skippingChars = this->readTags(input);
         //std::cout << "Tags:" << std::endl;
         //for (const auto& t : this->tags_)
         //    std::cout << "['" << t.first << "' '" << t.second << "']" << std::endl;
@@ -202,4 +240,8 @@ ChessTrainer::Notation::PGN::PGN(const std::string& input)
         this->error_ = err;
         this->invalidate();
     }
+}
+
+const ChessTrainer::Board ChessTrainer::Notation::PGN::getBoard() const {
+    return this->board_;
 }
