@@ -5,23 +5,40 @@
 bool ChessTrainer::Notation::PGN::updateCursor(const std::string& input,
                                                const int currentMove,
                                                size_t& startIdx,
-                                               const std::string& token,
                                                std::string& buffer) {
-    const auto& moveFound = input.find(std::to_string(currentMove + 1) + token);
-    if (moveFound == std::string::npos)
+    const auto& moveFound = input.find(std::to_string(currentMove + 1) + ".");
+    if (moveFound == std::string::npos) {
+        const static std::vector<std::string> validGameState = {
+            {"1/2-1/2"},
+            {"1-0"},
+            {"0-1"},
+            {"*"},
+        };
+        for (const auto& vgs : validGameState) {
+            const auto& endgame = input.find(vgs);
+            if (endgame == std::string::npos)
+                continue;
+            buffer = input.substr(startIdx, endgame - (startIdx + 1));
+            startIdx = endgame;
+            printf("[%i/endgame] Move found: '%s'\n",
+                   currentMove,
+                   buffer.c_str());
+            return false;
+        }
         return false;
+    }
     buffer = input.substr(startIdx, moveFound - (startIdx + 1));
-    //printf("[%s / %i] Move found: '%s'\n",
-    //       token.c_str(),
-    //       currentMove,
-    //       buffer.c_str());
+    printf("[%i] Move found: '%s'\n",
+           currentMove,
+           buffer.c_str());
     startIdx = moveFound;
     return true;
 }
 
 void ChessTrainer::Notation::PGN::getGameState(
     const std::string& input) {
-    std::vector<std::pair<std::string, Board::gameState_t>> validGameState = {
+    const static std::vector<std::pair<std::string, Board::gameState_t>>
+        validGameState = {
         {"1/2-1/2", Board::ENDED | Board::DRAW},
         {"1-0", Board::ENDED | Board::WHITE},
         {"0-1", Board::ENDED | Board::BLACK},
@@ -42,8 +59,10 @@ void ChessTrainer::Notation::PGN::getGameState(
 }
 
 void ChessTrainer::Notation::PGN::removeComments(std::string& buffer) {
-    size_t countCommentOpenToken = std::count(buffer.begin(), buffer.end(), '{');
-    size_t countCommentCloseToken = std::count(buffer.begin(), buffer.end(), '}');
+    size_t
+        countCommentOpenToken = std::count(buffer.begin(), buffer.end(), '{');
+    size_t
+        countCommentCloseToken = std::count(buffer.begin(), buffer.end(), '}');
     if (countCommentOpenToken > countCommentCloseToken)
         throw Error(Error::COMMENTARY_MISSING_END_TOKEN);
     else if (countCommentOpenToken < countCommentCloseToken)
@@ -57,13 +76,14 @@ void ChessTrainer::Notation::PGN::removeComments(std::string& buffer) {
 
         // TODO: Stocker le commentaire
         buffer.erase(commentaryOpenToken,
-                   commentaryCloseToken - commentaryOpenToken + 1);
+                     commentaryCloseToken - commentaryOpenToken + 1);
     }
 }
 
 void ChessTrainer::Notation::PGN::removeRecurrentMoveNumber(std::string& buffer,
                                                             int move) {
-    const static auto removePart = [&buffer] (const std::string& toRemove) -> void {
+    const static auto
+        removePart = [&buffer](const std::string& toRemove) -> void {
         size_t start = buffer.find(toRemove);
         if (start != std::string::npos)
             buffer.erase(start, toRemove.length());
@@ -76,16 +96,19 @@ void ChessTrainer::Notation::PGN::removeCheckOrMate(std::string& buffer) {
     const auto& pieceIdx = buffer.find_first_of("+#");
     if (pieceIdx == std::string::npos)
         return;
-    if (buffer[pieceIdx] == '+')
+    if (buffer[pieceIdx] == '+') {
+        this->board_.addGameState(Board::IN_CHECK);
         printf("[c/m] in check\n");
-    else
+    } else {
+        this->board_.addGameState(Board::IN_CHECKMATE);
         printf("[c/m] checkmate\n");
+    }
     buffer.erase(pieceIdx, 1);
 }
 
 ChessTrainer::Notation::PGN::pieceData ChessTrainer::Notation::PGN::getPiece(std::string& move,
                                                                              const ChessTrainer::IPiece::Color& color) {
-    printf("move: '%s'\n", move.c_str());
+    //printf("move: '%s'\n", move.c_str());
     this->removeCheckOrMate(move);
     const auto& pieceIdx = move.find_first_of("RQNKB");
     const Coordinates toCoord{move.substr(move.length() - 2)};
@@ -97,20 +120,27 @@ ChessTrainer::Notation::PGN::pieceData ChessTrainer::Notation::PGN::getPiece(std
     switch (move[pieceIdx]) {
         case 'R': return std::make_pair(std::make_shared<Rock>(color), toCoord);
         case 'K': return std::make_pair(std::make_shared<King>(color), toCoord);
-        case 'N': return std::make_pair(std::make_shared<Knight>(color), toCoord);
-        case 'Q': return std::make_pair(std::make_shared<Queen>(color), toCoord);
-        case 'B': return std::make_pair(std::make_shared<Bishop>(color), toCoord);
+        case 'N':
+            return std::make_pair(std::make_shared<Knight>(color),
+                                  toCoord);
+        case 'Q':
+            return std::make_pair(std::make_shared<Queen>(color),
+                                  toCoord);
+        case 'B':
+            return std::make_pair(std::make_shared<Bishop>(color),
+                                  toCoord);
     }
     throw Error(Error::UNKNOWN_PIECE, move);
 }
 
-void ChessTrainer::Notation::PGN::applyMove(const std::string& move, int currentMove) {
+void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
+                                            int currentMove) {
     auto moveCpy = move.substr();
     removeComments(moveCpy);
     //printf("After removing comments: '%s'\n", moveCpy.c_str());
     this->removeRecurrentMoveNumber(moveCpy, currentMove);
     //printf("After recurrent move numbers: '%s'\n", moveCpy.c_str());
-    const auto &vector = Utils::splitString(moveCpy, ' ');
+    const auto& vector = Utils::splitString(moveCpy, ' ');
     std::vector<std::string> rawCoordinates;
     for (const auto& v: vector)
         if (!v.empty())
@@ -121,9 +151,14 @@ void ChessTrainer::Notation::PGN::applyMove(const std::string& move, int current
     IPiece::Color currColor = IPiece::Color::White;
     for (auto& rc: rawCoordinates) {
         const auto& piece = getPiece(rc, currColor);
-        std::cout << "Piece detected '" << *piece.first << "' at " << piece.second << std::endl;
-        if (!this->board_.movePiece(*piece.first, piece.second))
-            throw Error(Error::ILLEGAL_MOVE, rc);
+        //std::cout << "Piece detected '" << *piece.first << "' at "
+        //          << piece.second << std::endl;
+        try {
+            if (!this->board_.movePiece(*piece.first, piece.second))
+                throw Error(Error::ILLEGAL_MOVE, rc);
+        } catch (const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
         currColor = IPiece::Color::Black;
     }
 }
@@ -132,19 +167,15 @@ void ChessTrainer::Notation::PGN::readMoves(const std::string& input) {
     int currentTotalMove = 1;
     size_t cursor = 0;
     while (this->board_.getGameState() == Board::IN_PROGRESS) {
+        if (this->board_.getGameState() & Board::IN_CHECKMATE)
+            throw Error(Error::PLAY_BEING_CHECKMATE);
+
         std::string currentMove;
-        if (!updateCursor(input, currentTotalMove, cursor, ".", currentMove)
-            &&
-                !updateCursor(input,
-                              currentTotalMove,
-                              cursor,
-                              "...",
-                              currentMove)) {
-            // TODO: Extraire le dernier move
-            getGameState(input);
-            return;
-        }
+        const bool lastMove =
+            updateCursor(input, currentTotalMove, cursor, currentMove);
         this->applyMove(currentMove, currentTotalMove);
+        if (!lastMove)
+            return getGameState(input);
         currentTotalMove++;
     }
 }

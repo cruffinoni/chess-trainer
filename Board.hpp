@@ -94,7 +94,8 @@ namespace ChessTrainer {
         void print() const;
 
         bool movePiece(const Coordinates& from, const Coordinates& to);
-        bool movePiece(const ChessTrainer::IPiece& piece, const Coordinates& to);
+        bool movePiece(const ChessTrainer::IPiece& piece,
+                       const Coordinates& to);
         void setPiece(const Coordinates& pos,
                       const std::shared_ptr<ChessTrainer::IPiece>& piece);
         bool canMove(const ChessTrainer::IPiece& piece, const Coordinates& to);
@@ -120,13 +121,16 @@ namespace ChessTrainer {
 
             // Early game ending?
             TIMEOUT = 0b100000,
-            RESIGN = 0b100000,
+            RESIGN = 0b1000000,
+
+            // In game state check
+            IN_CHECK = 0b10000000,
+            IN_CHECKMATE = 0b100000000,
         };
         void setGameState(gameState_t state);
         void addGameState(gameState_t state);
         [[nodiscard]] gameState_t getGameState() const;
         [[nodiscard]] std::string getGameStateName() const;
-
 
         // Iterator
         Iterator begin() {

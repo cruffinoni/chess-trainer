@@ -33,7 +33,7 @@ namespace ChessTrainer::Notation {
 
                 UNKNOWN_PIECE,
                 ILLEGAL_MOVE,
-
+                PLAY_BEING_CHECKMATE,
 
                 _RESERVED_PARSING_ERROR
             };
@@ -86,7 +86,8 @@ namespace ChessTrainer::Notation {
                 "commentary closing token ('}') is missing",
                 "too much or too few coordinates in '%arg%'",
                 "'%arg%' is an invalid piece notation, please check",
-                "%arg% is an illegal move"
+                "%arg% is an illegal move",
+                "the game shouldn't continue if one of the players is in checkmate"
             };
         };
         using tag = std::pair<std::string, std::string>;
@@ -105,7 +106,6 @@ namespace ChessTrainer::Notation {
         static bool updateCursor(const std::string& input,
                                  const int currentMove,
                                  size_t& startIdx,
-                                 const std::string& token,
                                  std::string& buffer);
         void getGameState(const std::string& input);
 

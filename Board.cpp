@@ -85,11 +85,6 @@ bool ChessTrainer::Board::movePiece(const Coordinates& from,
         this->board_[idx_from];
     if (!selectedPiece)
         return false;
-    const auto dynPawn = dynamic_cast<Pawn*>(this->board_[idx_from].get());
-    if (dynPawn != nullptr) {
-        std::cout << "This is a pawn" << std::endl;
-        dynPawn->onMove(to);
-    }
     this->registerMove(selectedPiece,
                        from,
                        to,

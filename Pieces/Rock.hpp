@@ -41,8 +41,8 @@ namespace ChessTrainer {
 
             for (int i = 1; i <= behind_y; ++i) {
                 const int idx = ChessTrainer::Utils::generateBoardIdxFromCoord(
-                    pos.getX() - i,
-                    pos.getY());
+                    pos.getX(),
+                    pos.getY() - i);
                 if (board[idx]->getColor() != this->color_) {
                     vector.emplace_back(idx);
                     break;
@@ -51,8 +51,8 @@ namespace ChessTrainer {
             }
             for (int i = 1, j = 8 - behind_y; i < j; ++i) {
                 const int idx = ChessTrainer::Utils::generateBoardIdxFromCoord(
-                    pos.getX() + i,
-                    pos.getY());
+                    pos.getX(),
+                    pos.getY() + i);
                 if (board[idx]->getColor() != this->color_) {
                     vector.emplace_back(idx);
                     break;

@@ -18,20 +18,35 @@ namespace ChessTrainer {
                                                    color) {};
         [[nodiscard]] std::vector<int> getMoves(int fromIdx,
                                                 const rawBoard_t& board) const override {
-            return {ChessTrainer::Utils::generateBoardIdxFromCoord(0,
-                                                                   this->color_
-                                                                       == Color::White
-                                                                   ? fromIdx + (this->moved_ ? 1 : 2)
-                                                                   :
-                                                                   fromIdx
-                                                                       - (this->moved_ ? 1 : 2))};
-        }
-        void onMove(const Coordinates&) override {
-            this->moved_ = true;
-        }
+            const Coordinates c{fromIdx};
+            const bool isWhite = this->color_ == IPiece::Color::White;
+            std::vector<int> vec;
+            int oneCase = isWhite ? fromIdx + ChessTrainer::Utils::BoardSize : fromIdx - ChessTrainer::Utils::BoardSize;
 
-        private:
-        bool moved_ = false;
+            if (oneCase > 0 && oneCase <= ChessTrainer::Utils::TotalBoardSize
+                && !*board[oneCase])
+                vec.emplace_back(oneCase);
+            else
+                return vec;
+            if (isWhite) {
+                if (c.getY() == 2)
+                    vec.emplace_back(Coordinates{c.getX(),
+                                                 static_cast<uint8_t>(c.getY()
+                                                     + 2u)}.toBoardIndex());
+            } else {
+                if (c.getY() == 7)
+                    vec.emplace_back(Coordinates{c.getX(),
+                                                 static_cast<uint8_t>(c.getY()
+                                                     - 2u)}.toBoardIndex());
+            }
+            oneCase--;
+            if (oneCase > 0 && oneCase <= ChessTrainer::Utils::TotalBoardSize && *board[oneCase])
+                vec.emplace_back(oneCase);
+            oneCase += 2;
+            if (oneCase > 0 && oneCase <= ChessTrainer::Utils::TotalBoardSize && *board[oneCase])
+                vec.emplace_back(oneCase);
+            return vec;
+        }
     };
 }
 
