@@ -120,6 +120,8 @@ namespace ChessTrainer::Notation {
         using pieceData = std::pair<IPiece::shared_ptr, Coordinates>;
         pieceData getPiece(std::string& move, const IPiece::Color& color);
         void removeCheckOrMate(std::string& buffer);
+        static Board::gameState_t getCastleType(const std::string& buffer,
+                                                const IPiece::Color& color);
 
         std::vector<tag> tags_;
         Error error_;

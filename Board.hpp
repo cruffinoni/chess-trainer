@@ -45,11 +45,12 @@ namespace ChessTrainer {
                 return tmp;
             }
 
-            Iterator& operator--() {
+            reference operator--() {
                 idx_--;
                 return *this;
             }
-            Iterator operator--(int) {
+
+            const Iterator operator--(int) {
                 Iterator tmp = *this;
                 --(*this);
                 return tmp;
@@ -62,6 +63,16 @@ namespace ChessTrainer {
 
             reference operator+=(const int rhs) {
                 this->idx_ += rhs;
+                return *this;
+            }
+
+            reference operator+=(const Coordinates& rhs) {
+                this->idx_ += rhs.toBoardIndex();
+                return *this;
+            }
+
+            reference operator+=(Coordinates&& rhs) {
+                this->idx_ += rhs.toBoardIndex();
                 return *this;
             }
 
@@ -93,9 +104,12 @@ namespace ChessTrainer {
 
         void print() const;
 
-        bool movePiece(const Coordinates& from, const Coordinates& to);
+        bool movePiece(const Coordinates& from,
+                       const Coordinates& to,
+                       bool registerMove = true);
         bool movePiece(const ChessTrainer::IPiece& piece,
-                       const Coordinates& to);
+                       const Coordinates& to,
+                       bool registerMove = true);
         void setPiece(const Coordinates& pos,
                       const std::shared_ptr<ChessTrainer::IPiece>& piece);
         bool canMove(const ChessTrainer::IPiece& piece, const Coordinates& to);
@@ -112,11 +126,13 @@ namespace ChessTrainer {
         // Game state
         typedef uint16_t gameState_t;
         enum gameState_e : gameState_t {
-            IN_PROGRESS = 1,
+            NONE = 0,
+            IN_PROGRESS = 0b1,
             ENDED = 0b10,
+
             // Who's the winner?
-            BLACK = 0b100,
-            WHITE = 0b1000,
+            WHITE = 0b100,
+            BLACK = 0b1000,
             DRAW = 0b10000,
 
             // Early game ending?
@@ -127,10 +143,23 @@ namespace ChessTrainer {
             IN_CHECK = 0b10000000,
             IN_CHECKMATE = 0b100000000,
         };
+
+        enum castleState_e : gameState_t {
+            KINGSIDE_CASTLE = 0b1,
+            QUEENSIDE_CASTLE = 0b10,
+            LEFT_ROOK_FORBIDDEN = 0b100,
+            RIGHT_ROOK_FORBIDDEN = 0b1000,
+            KING_FORBIDDEN = 0b10000,
+            CASTLE_FORBIDDEN = LEFT_ROOK_FORBIDDEN | RIGHT_ROOK_FORBIDDEN | KING_FORBIDDEN,
+        };
+
         void setGameState(gameState_t state);
         void addGameState(gameState_t state);
+        void removeGameState(gameState_t state);
         [[nodiscard]] gameState_t getGameState() const;
         [[nodiscard]] std::string getGameStateName() const;
+        bool doCastle(const ChessTrainer::Board::gameState_t castle,
+                      const IPiece::Color color);
 
         // Iterator
         Iterator begin() {
@@ -154,15 +183,21 @@ namespace ChessTrainer {
                           const Coordinates& to,
                           bool take);
         static int getBoardIdxFromCoordinates(const Coordinates& pos);
-        ChessTrainer::IPiece::rawBoard_t board_;
 
+        ChessTrainer::IPiece::rawBoard_t board_;
         std::vector<std::pair<std::string, std::string>> move_;
         uint16_t totalMoves_{};
         ChessTrainer::IPiece::Color
             chessSide_{ChessTrainer::IPiece::Color::White};
         void printWhiteSide() const;
         void printBlackSide() const;
+        bool isKingsideCastleAvailable(const IPiece::Color color) const;
+        bool isQueensideCastleAvailable(const IPiece::Color color) const;
+        void doKingsideCastle(const IPiece::Color color);
+        void doQueensideCastle(const IPiece::Color color);
+
         gameState_t state_{IN_PROGRESS};
+        gameState_t castle_[3] = {NONE, NONE, NONE};
     };
 
 }

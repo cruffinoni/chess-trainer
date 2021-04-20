@@ -31,15 +31,29 @@ namespace ChessTrainer {
             };
             std::vector<int> legalPosition;
             for (const auto& p : posAvailable) {
+                //printf("bidx: %i & %i\n", p.first, p.second);
+                if (p.first >= Utils::BoardSize || p.first < 0 ||
+                p.second > Utils::BoardSize || p.second < 0)
+                    continue;
                 try {
                     Coordinates c(p.first, p.second);
                     const int bIdx = c.toBoardIndex();
                     if (bIdx >= Utils::TotalBoardSize || bIdx < 0)
                         continue;
-                    if (board[bIdx]->getColor() != this->color_)
+                    if (*board[bIdx]) {
+                        if (board[bIdx]->getColor() != this->color_)
+                            legalPosition.emplace_back(bIdx);
+                    } else {
                         legalPosition.emplace_back(bIdx);
-                } catch (const std::out_of_range&) {}
+                    }
+                } catch (const std::out_of_range& e) {
+                    std::cerr << e.what() << std::endl;
+                }
             }
+            std::sort(legalPosition.begin(), legalPosition.end());
+            //printf("From: %i\n", fromIdx);
+            //for (const auto& v: legalPosition)
+            //    std::cout << "v: " << v << std::endl;
             return legalPosition;
         }
     };

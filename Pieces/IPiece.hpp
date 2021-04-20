@@ -10,13 +10,29 @@
 namespace ChessTrainer {
     class IPiece {
         public:
-        enum class Color : uint8_t {
+        enum Color : uint8_t {
             None,
             White,
             Black
         };
+        friend std::ostream& operator<<(std::ostream& input, const Color& c) {
+            switch (c) {
+                case None:
+                    input << "none";
+                    break;
+                case White:
+                    input << "white";
+                    break;
+                case Black:
+                    input << "black";
+                    break;
+            }
+            return input;
+        }
+
+
         using shared_ptr = std::shared_ptr<IPiece>;
-        typedef std::array<std::shared_ptr<IPiece>,
+        typedef std::array<shared_ptr,
                            ChessTrainer::Utils::TotalBoardSize> rawBoard_t;
         virtual ~IPiece() = default;
         IPiece() = default;

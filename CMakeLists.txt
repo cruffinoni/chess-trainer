@@ -35,4 +35,4 @@ add_executable(ChessTrainer
         Shell/Commands/Opening/Variation.hpp
         Shell/Commands/Opening/Show.hpp
         Opening/Parser.cpp
-        Opening/Parser.hpp Shell/Notation/FEN.cpp Shell/Notation/FEN.hpp Shell/Commands/Notation/FEN.hpp Shell/Notation/PGN.cpp Shell/Notation/PGN.hpp Utils.cpp Utils.hpp)
+        Opening/Parser.hpp Shell/Notation/FEN.cpp Shell/Notation/FEN.hpp Shell/Commands/Notation/FEN.hpp Shell/Notation/PGN.cpp Shell/Notation/PGN.hpp Utils.cpp Utils.hpp Pieces/Castle.hpp)

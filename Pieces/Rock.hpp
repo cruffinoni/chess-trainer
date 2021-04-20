@@ -22,8 +22,9 @@ namespace ChessTrainer {
                 const int idx = ChessTrainer::Utils::generateBoardIdxFromCoord(
                     pos.getX() - i,
                     pos.getY());
-                if (board[idx]->getColor() != this->color_) {
-                    vector.emplace_back(idx);
+                if (*board[idx]) {
+                    if (board[idx]->getColor() != this->color_)
+                        vector.emplace_back(idx);
                     break;
                 }
                 vector.emplace_back(idx);
@@ -32,8 +33,9 @@ namespace ChessTrainer {
                 const int idx = ChessTrainer::Utils::generateBoardIdxFromCoord(
                     pos.getX() + i,
                     pos.getY());
-                if (board[idx]->getColor() != this->color_) {
-                    vector.emplace_back(idx);
+                if (*board[idx]) {
+                    if (board[idx]->getColor() != this->color_)
+                        vector.emplace_back(idx);
                     break;
                 }
                 vector.emplace_back(idx);
@@ -43,8 +45,9 @@ namespace ChessTrainer {
                 const int idx = ChessTrainer::Utils::generateBoardIdxFromCoord(
                     pos.getX(),
                     pos.getY() - i);
-                if (board[idx]->getColor() != this->color_) {
-                    vector.emplace_back(idx);
+                if (*board[idx]) {
+                    if (board[idx]->getColor() != this->color_)
+                        vector.emplace_back(idx);
                     break;
                 }
                 vector.emplace_back(idx);
@@ -53,8 +56,9 @@ namespace ChessTrainer {
                 const int idx = ChessTrainer::Utils::generateBoardIdxFromCoord(
                     pos.getX(),
                     pos.getY() + i);
-                if (board[idx]->getColor() != this->color_) {
-                    vector.emplace_back(idx);
+                if (*board[idx]) {
+                    if (board[idx]->getColor() != this->color_)
+                        vector.emplace_back(idx);
                     break;
                 }
                 vector.emplace_back(idx);

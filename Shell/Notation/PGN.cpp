@@ -1,6 +1,8 @@
 
 #include <algorithm>
+#include <bitset>
 #include "PGN.hpp"
+#include "FEN.hpp"
 
 bool ChessTrainer::Notation::PGN::updateCursor(const std::string& input,
                                                const int currentMove,
@@ -94,6 +96,7 @@ void ChessTrainer::Notation::PGN::removeRecurrentMoveNumber(std::string& buffer,
 
 void ChessTrainer::Notation::PGN::removeCheckOrMate(std::string& buffer) {
     const auto& pieceIdx = buffer.find_first_of("+#");
+    this->board_.removeGameState(Board::IN_CHECK | Board::IN_CHECKMATE);
     if (pieceIdx == std::string::npos)
         return;
     if (buffer[pieceIdx] == '+') {
@@ -108,7 +111,6 @@ void ChessTrainer::Notation::PGN::removeCheckOrMate(std::string& buffer) {
 
 ChessTrainer::Notation::PGN::pieceData ChessTrainer::Notation::PGN::getPiece(std::string& move,
                                                                              const ChessTrainer::IPiece::Color& color) {
-    //printf("move: '%s'\n", move.c_str());
     this->removeCheckOrMate(move);
     const auto& pieceIdx = move.find_first_of("RQNKB");
     const Coordinates toCoord{move.substr(move.length() - 2)};
@@ -133,6 +135,16 @@ ChessTrainer::Notation::PGN::pieceData ChessTrainer::Notation::PGN::getPiece(std
     throw Error(Error::UNKNOWN_PIECE, move);
 }
 
+ChessTrainer::Board::gameState_t ChessTrainer::Notation::PGN::getCastleType(const std::string& buffer,
+                                                                            const IPiece::Color& color) {
+     if (buffer == "O-O")
+        return Board::KINGSIDE_CASTLE;
+     else if (buffer == "O-O-O")
+         return Board::QUEENSIDE_CASTLE;
+     else
+         return Board::NONE;
+}
+
 void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
                                             int currentMove) {
     auto moveCpy = move.substr();
@@ -140,7 +152,7 @@ void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
     //printf("After removing comments: '%s'\n", moveCpy.c_str());
     this->removeRecurrentMoveNumber(moveCpy, currentMove);
     //printf("After recurrent move numbers: '%s'\n", moveCpy.c_str());
-    const auto& vector = Utils::splitString(moveCpy, ' ');
+    const auto& vector = Utils::splitStringBySpace(moveCpy);
     std::vector<std::string> rawCoordinates;
     for (const auto& v: vector)
         if (!v.empty())
@@ -150,14 +162,16 @@ void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
 
     IPiece::Color currColor = IPiece::Color::White;
     for (auto& rc: rawCoordinates) {
-        const auto& piece = getPiece(rc, currColor);
-        //std::cout << "Piece detected '" << *piece.first << "' at "
-        //          << piece.second << std::endl;
-        try {
-            if (!this->board_.movePiece(*piece.first, piece.second))
+        const auto& castleType = getCastleType(rc, currColor);
+        if (castleType != Board::NONE) {
+            //std::bitset<12> b (castleType);
+            this->board_.doCastle(castleType, currColor);
+        } else {
+            const auto& piece = getPiece(rc, currColor);
+            if (!this->board_.movePiece(*piece.first, piece.second)) {
+                this->board_.print();
                 throw Error(Error::ILLEGAL_MOVE, rc);
-        } catch (const std::exception& e) {
-            std::cout << e.what() << std::endl;
+            }
         }
         currColor = IPiece::Color::Black;
     }
@@ -166,7 +180,7 @@ void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
 void ChessTrainer::Notation::PGN::readMoves(const std::string& input) {
     int currentTotalMove = 1;
     size_t cursor = 0;
-    while (this->board_.getGameState() == Board::IN_PROGRESS) {
+    while ((this->board_.getGameState() & Board::IN_PROGRESS) == Board::IN_PROGRESS) {
         if (this->board_.getGameState() & Board::IN_CHECKMATE)
             throw Error(Error::PLAY_BEING_CHECKMATE);
 
@@ -245,6 +259,7 @@ size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
 }
 
 void ChessTrainer::Notation::PGN::invalidate() {
+    printf("FEN: '%s'\n", Notation::FEN(this->board_, IPiece::White).getFen().c_str());
     std::cerr << "Invalid PGN: " << this->error_ << std::endl;
     this->tags_.clear();
     this->board_.clear();

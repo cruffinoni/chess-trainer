@@ -77,18 +77,39 @@ void ChessTrainer::Board::print() const {
         this->printBlackSide();
 }
 
+bool ChessTrainer::Board::movePiece(const ChessTrainer::IPiece& piece,
+                                    const ChessTrainer::Coordinates& to,
+                                    bool registerMove) {
+    for (const auto& p: *this) {
+        if (*p.first != piece)
+            continue;
+        const auto& availableCases = p.first->getMoves(p.second,
+                                                       this->board_);
+        const auto& canMove = std::find(availableCases.begin(),
+                                        availableCases.end(),
+                                        to);
+        if (canMove == availableCases.end())
+            continue;
+        this->movePiece(Coordinates(p.second), to, registerMove);
+        return true;
+    }
+    return false;
+}
+
 bool ChessTrainer::Board::movePiece(const Coordinates& from,
-                                    const Coordinates& to) {
+                                    const Coordinates& to,
+                                    bool registerMove) {
     const auto idx_from = ChessTrainer::Board::getBoardIdxFromCoordinates(from);
     const auto idx_to = ChessTrainer::Board::getBoardIdxFromCoordinates(to);
     auto selectedPiece =
         this->board_[idx_from];
     if (!selectedPiece)
         return false;
-    this->registerMove(selectedPiece,
-                       from,
-                       to,
-                       (bool) this->board_[idx_to]);
+    if (registerMove)
+        this->registerMove(selectedPiece,
+                           from,
+                           to,
+                           (bool) this->board_[idx_to]);
     this->board_[idx_to] = this->board_[idx_from];
     this->board_[idx_from] = std::make_shared<ChessTrainer::IPiece>();
     return true;
@@ -180,25 +201,6 @@ ChessTrainer::Board::Board(const ChessTrainer::IPiece::rawBoard_t& array) {
     this->board_ = array;
 }
 
-bool ChessTrainer::Board::movePiece(const ChessTrainer::IPiece& piece,
-                                    const ChessTrainer::Coordinates& to) {
-    for (const auto& p: *this) {
-        if (*p.first != piece)
-            continue;
-        const auto& availableCases = p.first->getMoves(p.second,
-                                                       this->board_);
-        const auto& canMove = std::find(availableCases.begin(),
-                                        availableCases.end(),
-                                        to);
-        if (canMove == availableCases.end())
-            continue;
-        this->movePiece(Coordinates(p.second), to);
-        return true;
-    }
-    return false;
-}
-
-
 bool ChessTrainer::Board::canMove(const ChessTrainer::IPiece& piece,
                                   const Coordinates& to) {
     for (const auto& p: *this) {
@@ -241,6 +243,10 @@ void ChessTrainer::Board::addGameState(ChessTrainer::Board::gameState_t state) {
     this->state_ |= state;
 }
 
+void ChessTrainer::Board::removeGameState(ChessTrainer::Board::gameState_t state) {
+    this->state_ &= ~state;
+}
+
 std::string ChessTrainer::Board::getGameStateName() const {
     if (this->state_ & gameState_e::IN_PROGRESS)
         return "In progress";
@@ -253,4 +259,73 @@ std::string ChessTrainer::Board::getGameStateName() const {
             return "Black won";
     }
     return "(unknown state)";
+}
+
+bool ChessTrainer::Board::doCastle(const ChessTrainer::Board::gameState_t castle,
+                                   const IPiece::Color color) {
+    if (this->castle_[color] & castle) {
+        std::cout << "Can't castle multiple times" << std::endl;
+        return false;
+    }
+    if (this->castle_[color] & CASTLE_FORBIDDEN) {
+        std::cout << "Castle is forbidden for this player" << std::endl;
+        return false;
+    }
+    std::cout << "Doing castle for " << color << std::endl;
+    if (castle == KINGSIDE_CASTLE) {
+        if (!isKingsideCastleAvailable(color)) {
+            std::cout << "(KS) there is piece between the king and the rook : castle invalid" << std::endl;
+            return false;
+        }
+        this->doKingsideCastle(color);
+        if (color == IPiece::White)
+            this->move_.emplace_back(std::make_pair("O-O", ""));
+        else
+            this->move_.back().second = "O-O";
+    } else {
+        if (!isQueensideCastleAvailable(color)) {
+            std::cout << "(QS) there is piece between the king and the rook : castle invalid" << std::endl;
+            return false;
+        }
+        this->doQueensideCastle(color);
+        if (color == IPiece::White)
+            this->move_.emplace_back(std::make_pair("O-O-O", ""));
+        else
+            this->move_.back().second = "O-O-O";
+    }
+    return true;
+}
+
+bool ChessTrainer::Board::isKingsideCastleAvailable(const IPiece::Color color) const {
+    auto cs = color == IPiece::White ? Coordinates("e1").toBoardIndex() : Coordinates("e8").toBoardIndex();
+    return !*this->board_[cs + 1] && !*this->board_[cs + 2];
+}
+
+bool ChessTrainer::Board::isQueensideCastleAvailable(const IPiece::Color color) const {
+    auto cs = color == IPiece::White ? Coordinates("a1").toBoardIndex() : Coordinates("a8").toBoardIndex();
+    bool valid = true;
+    for (int i = 1; i < 3; ++i)
+        if (*this->board_[cs + i])
+            valid = false;
+    return valid;
+}
+
+void ChessTrainer::Board::doKingsideCastle(const ChessTrainer::IPiece::Color color) {
+    if (color == IPiece::White) {
+        this->movePiece(Coordinates("e1"), Coordinates("g1"), false);
+        this->movePiece(Coordinates("h1"), Coordinates("f1"), false);
+    } else {
+        this->movePiece(Coordinates("e8"), Coordinates("g8"), false);
+        this->movePiece(Coordinates("h8"), Coordinates("f8"), false);
+    }
+}
+
+void ChessTrainer::Board::doQueensideCastle(const ChessTrainer::IPiece::Color color) {
+    if (color == IPiece::White) {
+        this->movePiece(Coordinates("e1"), Coordinates("c1"), false);
+        this->movePiece(Coordinates("a1"), Coordinates("d1"), false);
+    } else {
+        this->movePiece(Coordinates("e8"), Coordinates("c8"), false);
+        this->movePiece(Coordinates("a8"), Coordinates("d8"), false);
+    }
 }

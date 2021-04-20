@@ -10,14 +10,14 @@ ChessTrainer::IOpening::IOpening(const std::string& name,
       cleanBoard_(defaultBoardColor),
       playedOpeningBoard_(defaultBoardColor) {
     std::for_each(this->moves_.begin(), this->moves_.end(), [&](const Move& m) {
-        this->playedOpeningBoard_.movePiece(m.from, m.to);
+        this->playedOpeningBoard_.movePiece(m.from, m.to, true);
     });
 }
 
 void ChessTrainer::IOpening::executeMoves() {
     auto cpy = this->cleanBoard_;
     std::for_each(this->moves_.begin(), this->moves_.end(), [&](const Move& m) {
-        this->cleanBoard_.movePiece(m.from, m.to);
+        this->cleanBoard_.movePiece(m.from, m.to, true);
     });
 }
 
@@ -28,7 +28,7 @@ std::string ChessTrainer::IOpening::getName() const {
 void ChessTrainer::IOpening::show(bool stepBy) {
     auto cpy = this->cleanBoard_;
     std::for_each(this->moves_.begin(), this->moves_.end(), [&](const Move& m) {
-        this->cleanBoard_.movePiece(m.from, m.to);
+        this->cleanBoard_.movePiece(m.from, m.to, true);
         if (stepBy || this->cleanBoard_.getTurn()
             == ChessTrainer::IPiece::Color::White) {
             this->cleanBoard_.printLastMove();
@@ -41,7 +41,7 @@ void ChessTrainer::IOpening::show(bool stepBy) {
 void ChessTrainer::IOpening::printMoves() {
     auto cpy = this->cleanBoard_;
     std::for_each(this->moves_.begin(), this->moves_.end(), [&](const Move& m) {
-        this->cleanBoard_.movePiece(m.from, m.to);
+        this->cleanBoard_.movePiece(m.from, m.to, true);
     });
     this->cleanBoard_.printAllMoves();
     this->cleanBoard_ = cpy;
@@ -71,7 +71,7 @@ void ChessTrainer::IOpening::showVariation(const IVariation& variation,
     std::cout << this->name_ << " : " << variation.getName() << std::endl;
     const auto& moves = variation.getMoves();
     std::for_each(moves.begin(), moves.end(), [&](const Move& m) {
-        this->playedOpeningBoard_.movePiece(m.from, m.to);
+        this->playedOpeningBoard_.movePiece(m.from, m.to, true);
         if (stepBy
             || this->playedOpeningBoard_.getTurn()
                 == ChessTrainer::IPiece::Color::White

@@ -128,7 +128,7 @@ ChessTrainer::Notation::FEN::FEN(const Board& board,
          i -= Utils::BoardSize) {
         for (int j = 0; j < Utils::BoardSize; j++) {
             const auto idx = i + j;
-            if (!rawBoard[idx]) {
+            if (!*rawBoard[idx]) {
                 pass++;
             } else {
                 if (pass != 0) {
