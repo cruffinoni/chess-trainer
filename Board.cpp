@@ -103,13 +103,13 @@ bool ChessTrainer::Board::movePiece(const Coordinates& from,
     const auto idx_to = ChessTrainer::Board::getBoardIdxFromCoordinates(to);
     auto selectedPiece =
         this->board_[idx_from];
-    if (!selectedPiece)
+    if (!*selectedPiece)
         return false;
     if (registerMove)
         this->registerMove(selectedPiece,
                            from,
                            to,
-                           (bool) this->board_[idx_to]);
+                           (bool) *this->board_[idx_to]);
     this->board_[idx_to] = this->board_[idx_from];
     this->board_[idx_from] = std::make_shared<ChessTrainer::IPiece>();
     return true;

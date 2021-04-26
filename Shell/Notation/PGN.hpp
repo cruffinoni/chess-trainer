@@ -117,9 +117,18 @@ namespace ChessTrainer::Notation {
         static void removeComments(std::string &buffer);
         static void removeRecurrentMoveNumber(std::string& buffer,
                                        int move);
-        using pieceData = std::pair<IPiece::shared_ptr, Coordinates>;
+
+        struct pieceData {
+            IPiece::shared_ptr piece;
+            Coordinates coordinates;
+            int takingLine;
+        };
+        static std::optional<ChessTrainer::Notation::PGN::pieceData> isTakingPiece(
+            std::string& buffer,
+            const ChessTrainer::IPiece::Color& color);
+        //using pieceData = std::pair<IPiece::shared_ptr, Coordinates>;
         pieceData getPiece(std::string& move, const IPiece::Color& color);
-        void removeCheckOrMate(std::string& buffer);
+        void checkForCheckOrMate(std::string& buffer);
         static Board::gameState_t getCastleType(const std::string& buffer,
                                                 const IPiece::Color& color);
 

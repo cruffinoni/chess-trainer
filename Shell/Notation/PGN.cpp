@@ -1,6 +1,7 @@
 
 #include <algorithm>
 #include <bitset>
+#include <optional>
 #include "PGN.hpp"
 #include "FEN.hpp"
 
@@ -94,7 +95,7 @@ void ChessTrainer::Notation::PGN::removeRecurrentMoveNumber(std::string& buffer,
     removePart(std::to_string(move) + "...");
 }
 
-void ChessTrainer::Notation::PGN::removeCheckOrMate(std::string& buffer) {
+void ChessTrainer::Notation::PGN::checkForCheckOrMate(std::string& buffer) {
     const auto& pieceIdx = buffer.find_first_of("+#");
     this->board_.removeGameState(Board::IN_CHECK | Board::IN_CHECKMATE);
     if (pieceIdx == std::string::npos)
@@ -109,40 +110,64 @@ void ChessTrainer::Notation::PGN::removeCheckOrMate(std::string& buffer) {
     buffer.erase(pieceIdx, 1);
 }
 
+std::optional<ChessTrainer::Notation::PGN::pieceData> ChessTrainer::Notation::PGN::isTakingPiece(
+    std::string& buffer,
+    const ChessTrainer::IPiece::Color& color) {
+    const Coordinates toCoord{buffer.substr(buffer.length() - 2)};
+    const auto& takeIdx = buffer.find_first_of('x');
+    if (takeIdx == std::string::npos)
+        return std::nullopt;
+    buffer.erase(takeIdx);
+    std::cout << "Taking piece off idx: '" << buffer << "'" << std::endl;
+    switch (buffer.length()) {
+        case 1:
+            return std::make_optional(pieceData{std::make_shared<Pawn>(color),
+                                      toCoord, buffer[0] - 'a'});
+    }
+    return std::nullopt;
+}
+
 ChessTrainer::Notation::PGN::pieceData ChessTrainer::Notation::PGN::getPiece(std::string& move,
                                                                              const ChessTrainer::IPiece::Color& color) {
-    this->removeCheckOrMate(move);
+    this->checkForCheckOrMate(move);
+    const auto& forceTake = this->isTakingPiece(move, color);
+    if (forceTake.has_value()) {
+        std::cout << "Piece: " << *forceTake->piece << " " << forceTake->coordinates << " and taking line: " << std::to_string(forceTake->takingLine) << std::endl;
+        return forceTake.value();
+    }
     const auto& pieceIdx = move.find_first_of("RQNKB");
     const Coordinates toCoord{move.substr(move.length() - 2)};
     //printf("Coordinates to => '%s'\n", toCoord.toStringNotation().c_str());
     if (pieceIdx == std::string::npos) {
-        return std::make_pair(std::make_shared<Pawn>(color), toCoord);
+        return pieceData{std::make_shared<Pawn>(color), toCoord, -1};
     }
-    //printf("Piece: %i => %c\n", pieceIdx, move[pieceIdx]);
     switch (move[pieceIdx]) {
-        case 'R': return std::make_pair(std::make_shared<Rock>(color), toCoord);
-        case 'K': return std::make_pair(std::make_shared<King>(color), toCoord);
+        case 'R':
+            return pieceData{std::make_shared<Rock>(color), toCoord, -1};
+        case 'K':
+            return pieceData{std::make_shared<King>(color), toCoord, -1};
         case 'N':
-            return std::make_pair(std::make_shared<Knight>(color),
-                                  toCoord);
+            return pieceData{std::make_shared<Knight>(color),
+                             toCoord, -1};
         case 'Q':
-            return std::make_pair(std::make_shared<Queen>(color),
-                                  toCoord);
+            return pieceData{std::make_shared<Queen>(color),
+                             toCoord, -1};
         case 'B':
-            return std::make_pair(std::make_shared<Bishop>(color),
-                                  toCoord);
+            return pieceData{std::make_shared<Bishop>(color),
+                             toCoord, -1};
     }
     throw Error(Error::UNKNOWN_PIECE, move);
 }
 
-ChessTrainer::Board::gameState_t ChessTrainer::Notation::PGN::getCastleType(const std::string& buffer,
-                                                                            const IPiece::Color& color) {
-     if (buffer == "O-O")
+ChessTrainer::Board::gameState_t ChessTrainer::Notation::PGN::getCastleType(
+    const std::string& buffer,
+    const IPiece::Color& color) {
+    if (buffer == "O-O")
         return Board::KINGSIDE_CASTLE;
-     else if (buffer == "O-O-O")
-         return Board::QUEENSIDE_CASTLE;
-     else
-         return Board::NONE;
+    else if (buffer == "O-O-O")
+        return Board::QUEENSIDE_CASTLE;
+    else
+        return Board::NONE;
 }
 
 void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
@@ -157,8 +182,10 @@ void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
     for (const auto& v: vector)
         if (!v.empty())
             rawCoordinates.push_back(v);
-    if (rawCoordinates.size() != 2)
+    if (rawCoordinates.size() != 2) {
+        std::cerr << "move " << move << std::endl;
         throw Error(Error::INVALID_NUMBER_OF_COORDINATES, move);
+    }
 
     IPiece::Color currColor = IPiece::Color::White;
     for (auto& rc: rawCoordinates) {
@@ -168,7 +195,7 @@ void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
             this->board_.doCastle(castleType, currColor);
         } else {
             const auto& piece = getPiece(rc, currColor);
-            if (!this->board_.movePiece(*piece.first, piece.second)) {
+            if (!this->board_.movePiece(*piece.piece, piece.coordinates)) {
                 this->board_.print();
                 throw Error(Error::ILLEGAL_MOVE, rc);
             }
@@ -180,7 +207,8 @@ void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
 void ChessTrainer::Notation::PGN::readMoves(const std::string& input) {
     int currentTotalMove = 1;
     size_t cursor = 0;
-    while ((this->board_.getGameState() & Board::IN_PROGRESS) == Board::IN_PROGRESS) {
+    while ((this->board_.getGameState() & Board::IN_PROGRESS)
+        == Board::IN_PROGRESS) {
         if (this->board_.getGameState() & Board::IN_CHECKMATE)
             throw Error(Error::PLAY_BEING_CHECKMATE);
 
@@ -259,8 +287,10 @@ size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
 }
 
 void ChessTrainer::Notation::PGN::invalidate() {
-    printf("FEN: '%s'\n", Notation::FEN(this->board_, IPiece::White).getFen().c_str());
     std::cerr << "Invalid PGN: " << this->error_ << std::endl;
+    std::cerr << "FEN of the current position: "
+              << Notation::FEN(this->board_, IPiece::White).getFen()
+              << std::endl;
     this->tags_.clear();
     this->board_.clear();
 }
