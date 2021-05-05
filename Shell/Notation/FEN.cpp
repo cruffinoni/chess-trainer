@@ -1,6 +1,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <bitset>
 #include "FEN.hpp"
 #include "../../Utils.hpp"
 
@@ -23,13 +24,33 @@ bool ChessTrainer::Notation::FEN::retrieveTotalMove(const std::string& data) {
     try {
         this->board_.setMinTotalMoves(std::stoi(data));
     } catch (const std::invalid_argument& e) {
-        this->valid_ = false;
+        return this->invalidate("wrong number of total moves");
     } catch (const std::out_of_range& e) {
-        this->valid_ = false;
+        return this->invalidate("wrong number of total moves");
     }
-    if (!this->valid_)
-        std::cout << "Invalid FEN: wrong number of total moves" << std::endl;
-    return this->valid_;
+    return true;
+}
+
+std::string ChessTrainer::Notation::FEN::getCastleFormat() {
+    const std::array<Board::gameState_t, 3> &
+        castle = this->getBoard().getCastleState();
+    std::string fmt;
+    static const std::function<void(IPiece::Color)>
+        f = [&castle, &fmt](const IPiece::Color& c) {
+        if ((castle[c] & Board::CASTLE_FORBIDDEN) == 0) {
+            if ((castle[c] & (Board::QUEENSIDE_CASTLE | Board::KINGSIDE_CASTLE)) == (Board::QUEENSIDE_CASTLE | Board::KINGSIDE_CASTLE))
+                return;
+            if ((castle[c] & Board::RIGHT_ROOK_FORBIDDEN) == 0)
+                fmt += c == IPiece::Black ? "k" : "K";
+            if ((castle[c] & Board::LEFT_ROOK_FORBIDDEN) == 0)
+                fmt += c == IPiece::Black ? "q" : "Q";
+        }
+    };
+    f(IPiece::Color::White);
+    f(IPiece::Color::Black);
+    if (fmt.empty())
+        fmt = "-";
+    return fmt;
 }
 
 ChessTrainer::Notation::FEN::FEN(const std::string& input,
@@ -155,12 +176,13 @@ ChessTrainer::Notation::FEN::FEN(const Board& board,
         pass = 0;
     }
     this->board_ = rawBoard;
+    this->board_.setCastleState(board.getCastleState());
     this->board_.setMinTotalMoves(board.getTotalMoves());
+    this->board_.putLastTakes(board.getHalfmoveClock());
     if (forceChessBoardColorSide != IPiece::Color::None)
         this->board_.setChessColorSide(forceChessBoardColorSide);
-    this->fen_ += this->board_.getTurn() == IPiece::Color::White ? " w" : " b";
-    // TODO: Changer les permissions de castle + dernière fois qu'une pièce a été prise (règle des 50 coups)
-    this->fen_ += " KQkq - 0 " + std::to_string(this->board_.getTotalMoves());
+    this->fen_ += this->board_.getTurn() == IPiece::Color::White ? " w " : " b ";
+    this->fen_ += this->getCastleFormat() + " - " + std::to_string(this->board_.getHalfmoveClock()) + " " + std::to_string(this->board_.getTotalMoves());
 }
 
 ChessTrainer::Board& ChessTrainer::Notation::FEN::getBoard() {

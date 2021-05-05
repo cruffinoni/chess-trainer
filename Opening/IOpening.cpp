@@ -28,7 +28,7 @@ std::string ChessTrainer::IOpening::getName() const {
 void ChessTrainer::IOpening::show(bool stepBy) {
     auto cpy = this->cleanBoard_;
     std::for_each(this->moves_.begin(), this->moves_.end(), [&](const Move& m) {
-        this->cleanBoard_.movePiece(m.from, m.to, true);
+        this->cleanBoard_.movePiece(m.from, m.to, false);
         if (stepBy || this->cleanBoard_.getTurn()
             == ChessTrainer::IPiece::Color::White) {
             this->cleanBoard_.printLastMove();

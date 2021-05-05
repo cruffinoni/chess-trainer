@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdint>
+#include <algorithm>
 #include "Board.hpp"
 #include "Shell/Notation/FEN.hpp"
 
@@ -77,23 +78,60 @@ void ChessTrainer::Board::print() const {
         this->printBlackSide();
 }
 
-bool ChessTrainer::Board::movePiece(const ChessTrainer::IPiece& piece,
-                                    const ChessTrainer::Coordinates& to,
+bool ChessTrainer::Board::movePiece(const IPiece::helperPieceData& data,
                                     bool registerMove) {
-    for (const auto& p: *this) {
-        if (*p.first != piece)
-            continue;
-        const auto& availableCases = p.first->getMoves(p.second,
-                                                       this->board_);
-        const auto& canMove = std::find(availableCases.begin(),
-                                        availableCases.end(),
-                                        to);
-        if (canMove == availableCases.end())
-            continue;
-        this->movePiece(Coordinates(p.second), to, registerMove);
-        return true;
-    }
-    return false;
+    const auto& color = data.piece->getColor();
+    return std::any_of(this->begin(),
+                       this->end(),
+                       [&](const Iterator::value_dereference& val) {
+                           if (*val.first != *data.piece)
+                               return false;
+                           if (val.first->getColor() != color)
+                               return false;
+                           if (data.priorLine >= 0) {
+                               const Coordinates c{val.second};
+                               //printf("%i = %i, %i // %i, %i\n",
+                               //       std::isdigit(data.priorLine),
+                               //       c.getX(),
+                               //       c.getY(),
+                               //       (data.priorLine - '0'),
+                               //       (data.priorLine - 'a'));
+                               //printf("Is digit: %i = %i & %i\n", std::isdigit(data.priorLine),
+                               //       c.getX(), c.getY());
+                               //if (std::isdigit(data.priorLine) && c.getY() != (data.priorLine - '0'))
+                               //    return false;
+                               //else if (c.getX() != (data.priorLine - 'a'))
+                               //    return false;
+                               if ((std::isdigit(data.priorLine)
+                                   && c.getY() != (data.priorLine - '0')) ||
+                                   c.getX() != (data.priorLine - 'a')) {
+                                   //printf("INVALID TAKING -> '%s'\n",
+                                   //       data.coordinates.toStringNotation()
+                                   //           .c_str());
+                                   return false;
+                               }
+                               //printf("VALID TAKING aiming %i!\n", data.coordinates.toBoardIndex());
+                               //const std::vector<int>& vec =
+                               //    val.first->getMoves(val.second,
+                               //                        this->board_);
+                               //printf("Vec size?? %zu\n", vec.size());
+                               //for (const auto v: vec)
+                               //    printf("-> %i\n", v);
+                           }
+                           const std::vector<int>& availableCases =
+                               val.first->getMoves(val.second,
+                                                   this->board_);
+                           if (std::find(availableCases.begin(),
+                                         availableCases.end(),
+                                         data.coordinates)
+                               == availableCases.end())
+                               return false;
+                           this->movePiece(Coordinates{val.second},
+                                           data.coordinates,
+                                           registerMove);
+                           return true;
+                       }
+    );
 }
 
 bool ChessTrainer::Board::movePiece(const Coordinates& from,
@@ -115,7 +153,7 @@ bool ChessTrainer::Board::movePiece(const Coordinates& from,
     return true;
 }
 
-void ChessTrainer::Board::registerMove(const std::shared_ptr<ChessTrainer::IPiece>& piece,
+void ChessTrainer::Board::registerMove(const IPiece::shared_ptr& piece,
                                        const Coordinates& from,
                                        const Coordinates& to,
                                        bool take) {
@@ -129,6 +167,7 @@ void ChessTrainer::Board::registerMove(const std::shared_ptr<ChessTrainer::IPiec
             this->move_.emplace_back(std::make_pair(moveNotation, ""));
         else
             this->move_.back().second = moveNotation;
+        this->putLastTakes();
     } else {
         if (isPawn)
             moveNotation = to.toStringNotation();
@@ -203,32 +242,18 @@ ChessTrainer::Board::Board(const ChessTrainer::IPiece::rawBoard_t& array) {
 
 bool ChessTrainer::Board::canMove(const ChessTrainer::IPiece& piece,
                                   const Coordinates& to) {
-    for (const auto& p: *this) {
-        //std::cout << "Piece: " << *p.first << std::endl;
-        if (*p.first != piece)
-            continue;
-        //std::cout << "Piece found " << *p.first << " at "
-        //          << Coordinates(p.second) << " (" << p.second << ")"
-        //          << std::endl;
-        //std::cout << "User want to go at " << to << std::endl;
-        //for (const auto& m: p.first->getMoves(p.second, this->board_))
-        //    std::cout << "m = " << m << std::endl;
-        //std::cout << "Idx : " << p.second << std::endl;
-        //std::cout << "To : "
-        //          << ChessTrainer::Utils::generateBoardIdxFromCoord(to.getX(),
-        //                                                            to.getY())
-        //          << std::endl;
-
-        //std::cout << "Ggo to " << ChessTrainer::Utils::generateBoardIdxFromCoord(to.getX(), to.getY()) << std::endl;
-        const auto& availableCases = p.first->getMoves(p.second,
-                                                       this->board_);
-        const auto& canMove = std::find(availableCases.begin(),
-                                        availableCases.end(),
-                                        to) != availableCases.end();
-        if (canMove)
-            return true;
-    }
-    return false;
+    return std::any_of(this->begin(),
+                       this->end(),
+                       [&](const Iterator::value_dereference& val) {
+                           if (*val.first != piece)
+                               return false;
+                           const auto& availableCases =
+                               val.first->getMoves(val.second,
+                                                   this->board_);
+                           return std::find(availableCases.begin(),
+                                            availableCases.end(),
+                                            to) != availableCases.end();
+                       });
 }
 
 ChessTrainer::Board::gameState_t ChessTrainer::Board::getGameState() const {
@@ -261,6 +286,8 @@ std::string ChessTrainer::Board::getGameStateName() const {
     return "(unknown state)";
 }
 
+#include <bitset>
+
 bool ChessTrainer::Board::doCastle(const ChessTrainer::Board::gameState_t castle,
                                    const IPiece::Color color) {
     if (this->castle_[color] & castle) {
@@ -274,35 +301,48 @@ bool ChessTrainer::Board::doCastle(const ChessTrainer::Board::gameState_t castle
     std::cout << "Doing castle for " << color << std::endl;
     if (castle == KINGSIDE_CASTLE) {
         if (!isKingsideCastleAvailable(color)) {
-            std::cout << "(KS) there is piece between the king and the rook : castle invalid" << std::endl;
+            std::cout
+                << "(KS) there is piece between the king and the rook : castle invalid"
+                << std::endl;
             return false;
         }
         this->doKingsideCastle(color);
+        this->castle_[color] |= KINGSIDE_CASTLE;
         if (color == IPiece::White)
             this->move_.emplace_back(std::make_pair("O-O", ""));
         else
             this->move_.back().second = "O-O";
     } else {
         if (!isQueensideCastleAvailable(color)) {
-            std::cout << "(QS) there is piece between the king and the rook : castle invalid" << std::endl;
+            std::cout
+                << "(QS) there is piece between the king and the rook : castle invalid"
+                << std::endl;
             return false;
         }
         this->doQueensideCastle(color);
+        this->castle_[color] |= QUEENSIDE_CASTLE;
         if (color == IPiece::White)
             this->move_.emplace_back(std::make_pair("O-O-O", ""));
         else
             this->move_.back().second = "O-O-O";
     }
+
+    //std::bitset<8> b(this->castle_[color]);
+    //std::cout << "->> " << b << std::endl;
     return true;
 }
 
 bool ChessTrainer::Board::isKingsideCastleAvailable(const IPiece::Color color) const {
-    auto cs = color == IPiece::White ? Coordinates("e1").toBoardIndex() : Coordinates("e8").toBoardIndex();
+    auto cs =
+        color == IPiece::White ? Coordinates("e1").toBoardIndex() : Coordinates(
+            "e8").toBoardIndex();
     return !*this->board_[cs + 1] && !*this->board_[cs + 2];
 }
 
 bool ChessTrainer::Board::isQueensideCastleAvailable(const IPiece::Color color) const {
-    auto cs = color == IPiece::White ? Coordinates("a1").toBoardIndex() : Coordinates("a8").toBoardIndex();
+    auto cs =
+        color == IPiece::White ? Coordinates("a1").toBoardIndex() : Coordinates(
+            "a8").toBoardIndex();
     bool valid = true;
     for (int i = 1; i < 3; ++i)
         if (*this->board_[cs + i])
@@ -328,4 +368,34 @@ void ChessTrainer::Board::doQueensideCastle(const ChessTrainer::IPiece::Color co
         this->movePiece(Coordinates("e8"), Coordinates("c8"), false);
         this->movePiece(Coordinates("a8"), Coordinates("d8"), false);
     }
+}
+
+const ChessTrainer::Board::castleArray_t& ChessTrainer::Board::getCastleState() const {
+    return this->castle_;
+}
+
+void ChessTrainer::Board::setCastleState(const ChessTrainer::Board::castleArray_t& state) {
+    this->castle_ = state;
+}
+
+void ChessTrainer::Board::putLastTakes() {
+    this->lastTakes_ = this->getTotalMoves();
+}
+
+void ChessTrainer::Board::putLastTakes(uint16_t move) {
+    this->lastTakes_ = move;
+}
+uint16_t ChessTrainer::Board::getHalfmoveClock() const {
+    return this->lastTakes_;
+}
+void ChessTrainer::Board::replayGame(bool stepBy) const {
+    //Board b(this->chessSide_);
+    //std::for_each(this->move_.begin(), this->move_.end(), [&](const Move& m) {
+    //    b.movePiece(m.from, m.to, false);
+    //    if (stepBy || b.getTurn()
+    //        == ChessTrainer::IPiece::Color::White) {
+    //        b.printLastMove();
+    //        b.print();
+    //    }
+    //});
 }

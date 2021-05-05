@@ -10,28 +10,33 @@
 int main() {
     //ChessTrainer::Shell s;
     //s.run();
-    ChessTrainer::Notation::PGN pgn("[Event \"Super event\"]\n"
-                                    "[Site \"France\"]\n"
-                                    "[Date \"2021.04.07\"]\n"
-                                    "[Round \"2\"]\n"
-                                    "[White \"White user\"]\n"
-                                    "[Black \"Black user\"]\n"
-                                    "[Result \"*\"]\n"
-                                    "[WhiteElo \"999\"]\n"
-                                    "[BlackElo \"998\"]\n"
-                                    "[TimeControl \"5 + 1\"]\n"
-                                    "[Termination \"\"]\n"
+    ChessTrainer::Notation::PGN pgn("[Event \"Rated Blitz game\"]\n"
+                                    "[Site \"https://lichess.org/cu6x7sfz\"]\n"
+                                    "[White \"Danut68\"]\n"
+                                    "[Black \"Kyklades\"]\n"
+                                    "[Result \"0-1\"]\n"
+                                    "[UTCDate \"2013.01.01\"]\n"
+                                    "[UTCTime \"00:24:39\"]\n"
+                                    "[WhiteElo \"1561\"]\n"
+                                    "[BlackElo \"1604\"]\n"
+                                    "[WhiteRatingDiff \"-10\"]\n"
+                                    "[BlackRatingDiff \"+10\"]\n"
+                                    "[ECO \"C45\"]\n"
+                                    "[Opening \"Scotch Game\"]\n"
+                                    "[TimeControl \"240+0\"]\n"
+                                    "[Termination \"Time forfeit\"]\n"
                                     "\n"
-                                    "[Event \"?\"]\n"
-                                    "[Site \"?\"]\n"
-                                    "[Date \"????.??.??\"]\n"
-                                    "[Round \"?\"]\n"
-                                    "[White \"?\"]\n"
-                                    "[Black \"?\"]\n"
-                                    "[Result \"*\"]\n"
-                                    "\n"
-                                    "1. e4 d5 2. exd5 f6 *");
-    //pgn.getBoard().print();
+                                    "1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Nxd4 Nxd4 5. Qxd4 c5 6. Qc4 Nf6 7. Bg5 h6 8. Bh4 g5 9. Bg3 Be7 10. Be5 Qb6 11. b3 O-O 12. Nc3 Qb4 13. Qxb4 cxb4 14. Nd5 Bd8 15. Bxf6 Bxf6 16. Nxf6+ Kg7 17. e5 b6 18. Bc4 Bb7 19. O-O Kg6 20. Bd3+ Kg7 21. f4 Rac8 22. fxg5 hxg5 23. Rf5 Kg6 24. Raf1 Rh8 25. Nxd7 Rc6 26. Rxf7+ Kh5 27. Nf6+ Kh6 28. Be4 Rxf6 29. Rf1xf6+ Kh5 30. Rxb7 a5 31. Rbxb6 a4 32. Bf3+ Kh4 33. g3+ Kh3 34. Rh6+ Rxh6 0-1");
+                                    //"1. e4 e5 2. Nf3 Nc6 3. d4 exd4 0-1");
+    pgn.getBoard().print();
+    //pgn.getBoard().sh
+    /*
+     * Rh7
+     * Raa3
+     * Rhe6
+     * ed5
+     * e5
+     */
 
     //ChessTrainer::Notation::PGN pgn1("[Event \"Live Chess\"]\n"
     //                                 "[Site \"Chess.com\"]\n"
@@ -52,7 +57,6 @@ int main() {
     //                                 "[Termination \"Dayrion won by checkmate\"]\n"
     //                                 "[StartTime \"17:18:41\"]\n"
     //                                 "[EndDate \"2021.04.06\"]\n"
-    //                                17:20:46\"]\n"
     //                                 "[Link \"https://www.chess.com/game/live/11468625157\"]\n"
     //                                 "\n"
     //                                 "1. e4 Nc6 2. Nf3 Rb8 3. d4 Ra8 4. d5 Nb4 5. c3 e6 6. cxb4 g6 7. Ne5 h6 8. Qa4 f6\n"
@@ -61,7 +65,9 @@ int main() {
     //                                 "22. Nxf6 c3 23. Qc8+ Kf7 24. Qxg8+ Ke7 25. Qe6+ Kd8 26. Qd7# 1-0");
     //pgn1.getBoard().print();
 
-    //ChessTrainer::Notation::FEN f("r1bqkbnr/pppp4/5pNp/3Pp3/QP2P3/8/PP3PPP/R1B1KB1R w KQk - 0 10", ChessTrainer::IPiece::Color::White);
+    //ChessTrainer::Board b(ChessTrainer::IPiece::White);
+    //ChessTrainer::Notation::FEN f(b);
+    //ChessTrainer::Notation::FEN f("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", ChessTrainer::IPiece::Color::White);
     //printf("-> %i\n", f.getBoard().canMove(ChessTrainer::Knight(ChessTrainer::IPiece::Color::White), ChessTrainer::Coordinates("h8")));
     return 0;
 }

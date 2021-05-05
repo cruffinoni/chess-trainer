@@ -21,6 +21,7 @@ namespace ChessTrainer::Notation {
         std::string getFen() const;
 
         private:
+        std::string getCastleFormat();
         bool invalidate(const std::string& reasons);
         bool setColor(const std::string& data);
         bool retrieveTotalMove(const std::string& data);

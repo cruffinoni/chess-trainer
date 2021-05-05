@@ -40,16 +40,6 @@ namespace ChessTrainer {
         void validateCoordinates() const;
         Vector2D coord_;
     };
-
-    class Move {
-        public:
-        Move(const std::string& from, const std::string& to);
-        bool operator==(const Move& a) const {
-            return this->from == a.from && this->to == a.to;
-        }
-        Coordinates from;
-        Coordinates to;
-    };
 }
 
 #endif

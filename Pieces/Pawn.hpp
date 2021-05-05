@@ -26,8 +26,6 @@ namespace ChessTrainer {
             if (oneCase > 0 && oneCase <= ChessTrainer::Utils::TotalBoardSize
                 && !*board[oneCase])
                 vec.emplace_back(oneCase);
-            else
-                return vec;
             if (isWhite) {
                 if (c.getY() == 2)
                     vec.emplace_back(Coordinates{c.getX(),

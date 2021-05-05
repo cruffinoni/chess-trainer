@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "../Utils.hpp"
 #include "Coordinates.hpp"
 
@@ -34,6 +35,12 @@ namespace ChessTrainer {
         using shared_ptr = std::shared_ptr<IPiece>;
         typedef std::array<shared_ptr,
                            ChessTrainer::Utils::TotalBoardSize> rawBoard_t;
+
+        struct helperPieceData {
+            IPiece::shared_ptr piece;
+            Coordinates coordinates;
+            char priorLine;
+        };
         virtual ~IPiece() = default;
         IPiece() = default;
         IPiece(const std::string& name, char diminutive, Color color);
@@ -47,7 +54,6 @@ namespace ChessTrainer {
 
         [[nodiscard]] virtual std::vector<int> getMoves(int fromIdx,
                                                         const rawBoard_t& board) const;
-        virtual void onMove(const Coordinates& to);
 
         bool operator==(const IPiece& a) const;
         bool operator!=(const IPiece& a) const;

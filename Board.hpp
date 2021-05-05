@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <array>
+#include <iterator>
 #include "Pieces/Coordinates.hpp"
 #include "Pieces/IPiece.hpp"
 #include "Pieces/Pawn.hpp"
@@ -24,12 +25,13 @@ namespace ChessTrainer {
     class Board {
         public:
 
-        struct Iterator {
+        struct Iterator : std::iterator<std::forward_iterator_tag, Iterator> {
             using shared_pointer = std::shared_ptr<ChessTrainer::IPiece>;
             using reference = Iterator&;
             using difference_type = std::ptrdiff_t;
             using value_type = Iterator;
-            using iterator_category = std::random_access_iterator_tag;
+            using iterator_category = std::forward_iterator_tag;
+            using value_dereference = std::pair<std::shared_ptr<ChessTrainer::IPiece>, int>;
 
             public:
             Iterator(const ChessTrainer::IPiece::rawBoard_t& board, int idx)
@@ -107,8 +109,7 @@ namespace ChessTrainer {
         bool movePiece(const Coordinates& from,
                        const Coordinates& to,
                        bool registerMove = true);
-        bool movePiece(const ChessTrainer::IPiece& piece,
-                       const Coordinates& to,
+        bool movePiece(const IPiece::helperPieceData& data,
                        bool registerMove = true);
         void setPiece(const Coordinates& pos,
                       const std::shared_ptr<ChessTrainer::IPiece>& piece);
@@ -152,6 +153,7 @@ namespace ChessTrainer {
             KING_FORBIDDEN = 0b10000,
             CASTLE_FORBIDDEN = LEFT_ROOK_FORBIDDEN | RIGHT_ROOK_FORBIDDEN | KING_FORBIDDEN,
         };
+        typedef std::array<gameState_t, 3> castleArray_t;
 
         void setGameState(gameState_t state);
         void addGameState(gameState_t state);
@@ -160,6 +162,8 @@ namespace ChessTrainer {
         [[nodiscard]] std::string getGameStateName() const;
         bool doCastle(const ChessTrainer::Board::gameState_t castle,
                       const IPiece::Color color);
+        [[nodiscard]] const castleArray_t& getCastleState() const;
+        void setCastleState(const castleArray_t& state);
 
         // Iterator
         Iterator begin() {
@@ -176,9 +180,13 @@ namespace ChessTrainer {
         Iterator rend() {
             return Iterator(this->board_, -1);
         }
+        void putLastTakes();
+        void putLastTakes(uint16_t move);
+        uint16_t getHalfmoveClock() const;
+        void replayGame(bool stepBy = false) const;
 
         private:
-        void registerMove(const std::shared_ptr<ChessTrainer::IPiece>& piece,
+        void registerMove(const IPiece::shared_ptr& piece,
                           const Coordinates& from,
                           const Coordinates& to,
                           bool take);
@@ -187,6 +195,7 @@ namespace ChessTrainer {
         ChessTrainer::IPiece::rawBoard_t board_;
         std::vector<std::pair<std::string, std::string>> move_;
         uint16_t totalMoves_{};
+        uint16_t lastTakes_ {};
         ChessTrainer::IPiece::Color
             chessSide_{ChessTrainer::IPiece::Color::White};
         void printWhiteSide() const;
@@ -197,7 +206,7 @@ namespace ChessTrainer {
         void doQueensideCastle(const IPiece::Color color);
 
         gameState_t state_{IN_PROGRESS};
-        gameState_t castle_[3] = {NONE, NONE, NONE};
+        castleArray_t castle_ = {NONE, NONE, NONE};
     };
 
 }

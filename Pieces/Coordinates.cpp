@@ -63,7 +63,3 @@ bool ChessTrainer::Coordinates::operator==(int idx) const {
 uint8_t ChessTrainer::Coordinates::toBoardIndex() const {
     return Utils::generateBoardIdxFromCoord(this->coord_.x, this->coord_.y);
 }
-
-ChessTrainer::Move::Move(const std::string& from, const std::string& to) : from(
-    Coordinates(
-        from)), to(Coordinates((to))) {}
