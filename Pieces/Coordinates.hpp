@@ -25,6 +25,12 @@ namespace ChessTrainer {
         [[nodiscard]] uint8_t toBoardIndex() const;
         bool operator==(const Coordinates& a) const;
         bool operator==(int idx) const;
+        explicit operator int() const {
+            return this->toBoardIndex();
+        }
+        explicit operator unsigned int() const {
+            return this->toBoardIndex();
+        }
         // Declare function definition in scope otherwise, windows won't
         // compile with the error code LNK2019
         friend bool operator==(int idx, const Coordinates& a) {

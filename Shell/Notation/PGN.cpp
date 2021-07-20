@@ -151,29 +151,6 @@ std::optional<ChessTrainer::IPiece::helperPieceData> ChessTrainer::Notation::PGN
         return std::nullopt;
     move.erase(takeIdx, 1);
     return getPieceDataFromNotation(originalMove, move, color);
-    //pieceData p {
-    //    .piece = std::make_shared<Pawn>(color),
-    //    .coordinates = Coordinates(move.substr(move.length() - 2)),
-    //    .priorLine = -1
-    //};
-    //const auto firstPart = move.substr(0, takeIdx);
-    //printf("Fp: '%s'\n", firstPart.c_str());
-    //if (firstPart.length() > 1) {
-    //    p.piece = createPieceFromDiminutive(color, firstPart[0]);
-    //    if (p.piece == nullptr)
-    //        throw Error(Error::UNKNOWN_PIECE, move);
-    //} else {
-    //    p.priorLine = firstPart[0];
-    //}
-    //
-    //std::cout << "Piece detected: " << p.piece->getName() << std::endl;
-    //// Rbxe2 Rbe2
-    //if (firstPart.length() == 2)
-    //    p.priorLine = firstPart[1];
-    //else if (firstPart.length() > 2)
-    //    std::cerr << move << " seems invalid" << std::endl;
-    //std::cout << "Taking piece off idx: '" << move << "'" << std::endl;
-    //return p;
 }
 
 ChessTrainer::IPiece::helperPieceData ChessTrainer::Notation::PGN::getPiece(std::string move,
@@ -187,18 +164,6 @@ ChessTrainer::IPiece::helperPieceData ChessTrainer::Notation::PGN::getPiece(std:
     if (takingPiece.has_value()) {
         return takingPiece.value();
     }
-    //const auto& pieceIdx = move.find_first_of("RQNKB");
-    //const Coordinates toCoord{move.substr(move.length() - 2)};
-    ////printf("Coordinates to => '%s'\n", toCoord.toStringNotation().c_str());
-    //if (pieceIdx == std::string::npos) {
-    //    return pieceData{std::make_shared<Pawn>(color), toCoord, -1};
-    //}
-    //const auto& piece = ChessTrainer::Notation::PGN::createPieceFromDiminutive(
-    //    color,
-    //    move[pieceIdx]);
-    //if (piece == nullptr)
-    //    throw Error(Error::UNKNOWN_PIECE, move);
-    //return pieceData{piece, toCoord, -1};
     return getPieceDataFromNotation(cpy, move, color);
 }
 

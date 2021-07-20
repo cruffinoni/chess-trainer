@@ -40,6 +40,7 @@ namespace ChessTrainer {
             IPiece::shared_ptr piece;
             Coordinates coordinates;
             char priorLine;
+            bool allowEnPassant;
         };
         virtual ~IPiece() = default;
         IPiece() = default;
@@ -53,7 +54,8 @@ namespace ChessTrainer {
         std::string getColorName(bool firstLetterUpperCase = false) const;
 
         [[nodiscard]] virtual std::vector<int> getMoves(int fromIdx,
-                                                        const rawBoard_t& board) const;
+                                                        const rawBoard_t& board,
+                                                        const helperPieceData& lastMove) const;
 
         bool operator==(const IPiece& a) const;
         bool operator!=(const IPiece& a) const;

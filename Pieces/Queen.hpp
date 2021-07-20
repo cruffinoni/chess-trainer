@@ -13,12 +13,13 @@ namespace ChessTrainer {
                                                     'Q',
                                                     color) {};
         [[nodiscard]] std::vector<int> getMoves(int fromIdx,
-                                                const rawBoard_t& board) const override {
+                                                const rawBoard_t& board,
+                                                const helperPieceData& lastMove) const override {
             std::vector<int> vector;
             const auto& bishop_moves = Bishop(this->color_).getMoves(fromIdx,
-                                                                     board);
+                                                                     board, {});
             const auto& rock_moves = Rock(this->color_).getMoves(fromIdx,
-                                                                 board);
+                                                                 board, {});
             vector.reserve(bishop_moves.size() + rock_moves.size());
             vector.insert(vector.begin(),
                           bishop_moves.begin(),

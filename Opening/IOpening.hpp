@@ -9,6 +9,7 @@
 #include "../Board.hpp"
 #include "../Pieces/Coordinates.hpp"
 #include "IVariation.hpp"
+#include "../Pieces/Move.hpp"
 
 namespace ChessTrainer {
     class IOpening {

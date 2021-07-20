@@ -5,8 +5,8 @@
 ** TODO: CHANGE DESCRIPTION.
 */
 
-#ifndef CHESSTRAINER__DATABASE_HPP_
-#define CHESSTRAINER__DATABASE_HPP_
+#ifndef CHESSTRAINER_DATABASE_HPP_
+#define CHESSTRAINER_DATABASE_HPP_
 
 #include <list>
 #include "IOpening.hpp"
@@ -32,4 +32,4 @@ namespace ChessTrainer {
     };
 }
 
-#endif //CHESSTRAINER__DATABASE_HPP_
+#endif //CHESSTRAINER_DATABASE_HPP_

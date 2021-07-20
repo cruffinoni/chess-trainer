@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include "../Pieces/Coordinates.hpp"
+#include "../Pieces/Move.hpp"
 
 namespace ChessTrainer {
     class IVariation {

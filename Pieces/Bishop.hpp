@@ -12,7 +12,8 @@ namespace ChessTrainer {
                                                      'B',
                                                      color) {};
         [[nodiscard]] std::vector<int> getMoves(int fromIdx,
-                                                const rawBoard_t& board) const override {
+                                                const rawBoard_t& board,
+                                                const helperPieceData& lastMove) const override {
             std::vector<int> vector;
             Coordinates pos(fromIdx);
 

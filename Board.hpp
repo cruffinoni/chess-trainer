@@ -196,6 +196,10 @@ namespace ChessTrainer {
         std::vector<std::pair<std::string, std::string>> move_;
         uint16_t totalMoves_{};
         uint16_t lastTakes_ {};
+        ChessTrainer::IPiece::helperPieceData lastMove_ = {
+            .piece = nullptr,
+            .allowEnPassant = false,
+        };
         ChessTrainer::IPiece::Color
             chessSide_{ChessTrainer::IPiece::Color::White};
         void printWhiteSide() const;

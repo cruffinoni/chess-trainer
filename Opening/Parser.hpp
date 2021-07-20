@@ -12,6 +12,7 @@
 #include <vector>
 #include "../Pieces/Coordinates.hpp"
 #include "IOpening.hpp"
+#include "../Pieces/Move.hpp"
 
 namespace ChessTrainer::Opening {
     class Parser {

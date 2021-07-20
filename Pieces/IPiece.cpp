@@ -57,8 +57,7 @@ bool ChessTrainer::IPiece::operator!=(const IPiece& a) const {
     return this->color_ != a.color_ || this->diminutive_ != a.diminutive_;
 }
 std::vector<int> ChessTrainer::IPiece::getMoves(int fromIdx,
-                                                const rawBoard_t& board) const {
+                                                const rawBoard_t& board,
+                                                const helperPieceData& lastMove) const {
     return {};
 }
-
-void ChessTrainer::IPiece::onMove(const ChessTrainer::Coordinates& to) {}

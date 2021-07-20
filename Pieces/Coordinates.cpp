@@ -26,7 +26,7 @@ ChessTrainer::Coordinates::Coordinates(const std::string& pos) : coord_(0, 0) {
     if (pos.length() != 2)
         throw std::out_of_range("invalid coordinates: notation must be only 2 chars");
     if (pos[0] < 'a' || pos[0] > 'h')
-        throw std::out_of_range("invalid coordinates: first coordinate must be between a & h");
+        throw std::out_of_range("invalid coordinates: first coordinate must be between a & h: " + pos);
     if (pos[1] < '1' || pos[1] > '8')
         throw std::out_of_range("invalid coordinates: second letter must be between 1 & 8");
     this->coord_ =

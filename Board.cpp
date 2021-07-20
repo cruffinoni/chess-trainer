@@ -88,47 +88,55 @@ bool ChessTrainer::Board::movePiece(const IPiece::helperPieceData& data,
                                return false;
                            if (val.first->getColor() != color)
                                return false;
+                           const Coordinates from{val.second};
                            if (data.priorLine >= 0) {
-                               const Coordinates c{val.second};
-                               //printf("%i = %i, %i // %i, %i\n",
-                               //       std::isdigit(data.priorLine),
-                               //       c.getX(),
-                               //       c.getY(),
-                               //       (data.priorLine - '0'),
-                               //       (data.priorLine - 'a'));
-                               //printf("Is digit: %i = %i & %i\n", std::isdigit(data.priorLine),
-                               //       c.getX(), c.getY());
-                               //if (std::isdigit(data.priorLine) && c.getY() != (data.priorLine - '0'))
-                               //    return false;
-                               //else if (c.getX() != (data.priorLine - 'a'))
-                               //    return false;
                                if ((std::isdigit(data.priorLine)
-                                   && c.getY() != (data.priorLine - '0')) ||
-                                   c.getX() != (data.priorLine - 'a')) {
-                                   //printf("INVALID TAKING -> '%s'\n",
-                                   //       data.coordinates.toStringNotation()
-                                   //           .c_str());
+                                   && from.getY() != (data.priorLine - '0')) ||
+                                   from.getX() != (data.priorLine - 'a')) {
                                    return false;
                                }
-                               //printf("VALID TAKING aiming %i!\n", data.coordinates.toBoardIndex());
-                               //const std::vector<int>& vec =
-                               //    val.first->getMoves(val.second,
-                               //                        this->board_);
-                               //printf("Vec size?? %zu\n", vec.size());
-                               //for (const auto v: vec)
-                               //    printf("-> %i\n", v);
                            }
                            const std::vector<int>& availableCases =
                                val.first->getMoves(val.second,
-                                                   this->board_);
-                           if (std::find(availableCases.begin(),
-                                         availableCases.end(),
-                                         data.coordinates)
-                               == availableCases.end())
+                                                   this->board_,
+                                                   this->lastMove_);
+                           const auto
+                               movePieceCase = std::find(availableCases.begin(),
+                                                         availableCases.end(),
+                                                         data.coordinates);
+                           if (movePieceCase == availableCases.end())
                                return false;
-                           this->movePiece(Coordinates{val.second},
+                           if (this->lastMove_.allowEnPassant && !*this->board_[data.coordinates.toBoardIndex()]) {
+                               if (Pawn::isTakeEnPassant(from.toBoardIndex(),
+                                                         data.coordinates
+                                                             .toBoardIndex())) {
+                                   Coordinates c;
+                                   if (data.piece->getColor() == IPiece::White)
+                                       c = Coordinates(data.coordinates.getX(),
+                                                       data.coordinates.getY()
+                                                           - 1);
+                                   else
+                                       c = Coordinates(data.coordinates.getX(),
+                                                       data.coordinates.getY()
+                                                           + 1);
+                                   this->board_[c.toBoardIndex()] =
+                                       std::make_shared<ChessTrainer::IPiece>();
+                               }
+                           }
+                           this->movePiece(from,
                                            data.coordinates,
                                            registerMove);
+                           this->lastMove_ = data;
+
+                           this->lastMove_.allowEnPassant =
+                               data.piece->getDiminutive() == 'P' && (
+                                   abs(from.getY() - data.coordinates.getY())
+                                       == 2);
+
+                           //std::cout << "to " << data.coordinates << std::endl;
+                           //printf("En passant allowed: %i\n",
+                           //       this->lastMove_.allowEnPassant);
+                           //std::cout << "----" << std::endl;
                            return true;
                        }
     );
@@ -150,6 +158,10 @@ bool ChessTrainer::Board::movePiece(const Coordinates& from,
                            (bool) *this->board_[idx_to]);
     this->board_[idx_to] = this->board_[idx_from];
     this->board_[idx_from] = std::make_shared<ChessTrainer::IPiece>();
+    this->print();
+    std::cout << std::to_string(this->totalMoves_) << ". "
+              << this->move_.back().first << " " << this->move_.back().second
+              << std::endl;
     return true;
 }
 
@@ -165,8 +177,10 @@ void ChessTrainer::Board::registerMove(const IPiece::shared_ptr& piece,
                 ->getStringDiminutive()) + "x" + to.toStringNotation();
         if (piece->getColor() == ChessTrainer::IPiece::Color::White)
             this->move_.emplace_back(std::make_pair(moveNotation, ""));
-        else
+        else {
+            this->totalMoves_++;
             this->move_.back().second = moveNotation;
+        }
         this->putLastTakes();
     } else {
         if (isPawn)
@@ -175,8 +189,10 @@ void ChessTrainer::Board::registerMove(const IPiece::shared_ptr& piece,
             moveNotation = piece->getStringDiminutive() + to.toStringNotation();
         if (piece->getColor() == ChessTrainer::IPiece::Color::White)
             this->move_.emplace_back(std::make_pair(moveNotation, ""));
-        else
+        else {
+            this->totalMoves_++;
             this->move_.back().second = moveNotation;
+        }
     }
 }
 ChessTrainer::IPiece::Color ChessTrainer::Board::getTurn() const {
@@ -249,7 +265,7 @@ bool ChessTrainer::Board::canMove(const ChessTrainer::IPiece& piece,
                                return false;
                            const auto& availableCases =
                                val.first->getMoves(val.second,
-                                                   this->board_);
+                                                   this->board_, {});
                            return std::find(availableCases.begin(),
                                             availableCases.end(),
                                             to) != availableCases.end();
