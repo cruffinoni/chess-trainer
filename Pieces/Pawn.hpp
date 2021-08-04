@@ -67,6 +67,10 @@ namespace ChessTrainer {
             //printf("from %i to %i = %i\n", fromIdx, toIdx, resultIdx);
             return resultIdx == 7 || resultIdx == 9;
         }
+
+        static bool isPawn(const IPiece& piece) {
+            return piece.getDiminutive() == 'P';
+        }
     };
 }
 

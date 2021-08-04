@@ -106,7 +106,7 @@ bool ChessTrainer::Board::movePiece(const IPiece::helperPieceData& data,
                                                          data.coordinates);
                            if (movePieceCase == availableCases.end())
                                return false;
-                           if (this->lastMove_.allowEnPassant && !*this->board_[data.coordinates.toBoardIndex()]) {
+                           if (this->lastMove_.allowEnPassant && !*this->board_[data.coordinates.toBoardIndex()] && Pawn::isPawn(*data.piece)) {
                                if (Pawn::isTakeEnPassant(from.toBoardIndex(),
                                                          data.coordinates
                                                              .toBoardIndex())) {
