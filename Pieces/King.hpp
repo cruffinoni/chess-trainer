@@ -39,6 +39,10 @@ namespace ChessTrainer {
             }
             return legalPosition;
         };
+
+        static bool isKing(const IPiece& piece) {
+            return piece.getDiminutive() == 'K';
+        }
     };
 }
 

@@ -102,7 +102,7 @@ namespace ChessTrainer {
         explicit Board(const ChessTrainer::IPiece::Color& defaultBoardColor);
         Board(const ChessTrainer::IPiece::rawBoard_t& array);
         ~Board() = default;
-        Board(const Board& b) = default;
+        Board(const Board& b);
 
         void print() const;
 
@@ -151,7 +151,7 @@ namespace ChessTrainer {
             LEFT_ROOK_FORBIDDEN = 0b100,
             RIGHT_ROOK_FORBIDDEN = 0b1000,
             KING_FORBIDDEN = 0b10000,
-            CASTLE_FORBIDDEN = LEFT_ROOK_FORBIDDEN | RIGHT_ROOK_FORBIDDEN | KING_FORBIDDEN,
+            CASTLE_FORBIDDEN = KING_FORBIDDEN,
         };
         typedef std::array<gameState_t, 3> castleArray_t;
 
@@ -163,6 +163,7 @@ namespace ChessTrainer {
         bool doCastle(const ChessTrainer::Board::gameState_t castle,
                       const IPiece::Color color);
         [[nodiscard]] const castleArray_t& getCastleState() const;
+        bool isCastleSet(castleState_e state, const IPiece::Color color) const;
         void setCastleState(const castleArray_t& state);
 
         // Iterator
@@ -180,9 +181,9 @@ namespace ChessTrainer {
         Iterator rend() {
             return Iterator(this->board_, -1);
         }
-        void putLastTakes();
         void putLastTakes(uint16_t move);
         uint16_t getHalfmoveClock() const;
+        ChessTrainer::IPiece::helperPieceData getLastMovePiece() const;
         void replayGame(bool stepBy = false) const;
 
         private:
@@ -194,8 +195,8 @@ namespace ChessTrainer {
 
         ChessTrainer::IPiece::rawBoard_t board_;
         std::vector<std::pair<std::string, std::string>> move_;
-        uint16_t totalMoves_{};
-        uint16_t lastTakes_ {};
+        uint16_t totalMoves_{1};
+        uint16_t lastTakes_ {0};
         ChessTrainer::IPiece::helperPieceData lastMove_ = {
             .piece = nullptr,
             .allowEnPassant = false,

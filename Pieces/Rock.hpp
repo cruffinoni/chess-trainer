@@ -65,6 +65,10 @@ namespace ChessTrainer {
                 vector.emplace_back(idx);
             }
             return vector;
+        };
+
+        static bool isRock(const IPiece& piece) {
+            return piece.getDiminutive() == 'R';
         }
     };
 }

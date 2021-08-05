@@ -32,13 +32,18 @@ bool ChessTrainer::Notation::FEN::retrieveTotalMove(const std::string& data) {
 }
 
 std::string ChessTrainer::Notation::FEN::getCastleFormat() {
-    const std::array<Board::gameState_t, 3> &
-        castle = this->getBoard().getCastleState();
+    const auto castle = this->getBoard().getCastleState();
     std::string fmt;
     static const std::function<void(IPiece::Color)>
         f = [&castle, &fmt](const IPiece::Color& c) {
-        if ((castle[c] & Board::CASTLE_FORBIDDEN) == 0) {
-            if ((castle[c] & (Board::QUEENSIDE_CASTLE | Board::KINGSIDE_CASTLE)) == (Board::QUEENSIDE_CASTLE | Board::KINGSIDE_CASTLE))
+        //std::bitset<8> b(castle[c]);
+        //std::cout << c << " " << b << std::endl;
+        if ((castle[c] & Board::KING_FORBIDDEN) == 0) {
+            const auto
+                castlePiece = Board::QUEENSIDE_CASTLE | Board::KINGSIDE_CASTLE;
+            //b = castle[c] & Board::LEFT_ROOK_FORBIDDEN;
+            //std::cout << "-> " << b << " / " << std::bitset<8>(castlePiece) << std::endl;
+            if ((castle[c] & castlePiece) == castlePiece)
                 return;
             if ((castle[c] & Board::RIGHT_ROOK_FORBIDDEN) == 0)
                 fmt += c == IPiece::Black ? "k" : "K";
@@ -176,13 +181,24 @@ ChessTrainer::Notation::FEN::FEN(const Board& board,
         pass = 0;
     }
     this->board_ = rawBoard;
-    this->board_.setCastleState(board.getCastleState());
-    this->board_.setMinTotalMoves(board.getTotalMoves());
-    this->board_.putLastTakes(board.getHalfmoveClock());
+    this->board_ = Board(board);
     if (forceChessBoardColorSide != IPiece::Color::None)
         this->board_.setChessColorSide(forceChessBoardColorSide);
-    this->fen_ += this->board_.getTurn() == IPiece::Color::White ? " w " : " b ";
-    this->fen_ += this->getCastleFormat() + " - " + std::to_string(this->board_.getHalfmoveClock()) + " " + std::to_string(this->board_.getTotalMoves());
+    this->fen_ +=
+        this->board_.getTurn() == IPiece::Color::White ? " w " : " b ";
+    std::string enPassantNotation{"-"};
+    const auto& lastMove = this->board_.getLastMovePiece();
+    if (lastMove.allowEnPassant) {
+        const int yEnPassant =
+            this->board_.getTurn() == IPiece::Color::Black ? -1 : +1;
+        enPassantNotation = Coordinates(lastMove.coordinates.getX(),
+                                        lastMove.coordinates.getY()
+                                            + yEnPassant)
+            .toStringNotation();
+    }
+    this->fen_ += this->getCastleFormat() + " " + enPassantNotation + " "
+        + std::to_string(this->board_.getHalfmoveClock()) + " "
+        + std::to_string(this->board_.getTotalMoves());
 }
 
 ChessTrainer::Board& ChessTrainer::Notation::FEN::getBoard() {

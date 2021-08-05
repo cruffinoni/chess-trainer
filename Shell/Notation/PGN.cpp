@@ -321,6 +321,7 @@ bool ChessTrainer::Notation::PGN::isValid() const {
 
 ChessTrainer::Notation::PGN::PGN(const std::string& input)
     : board_(IPiece::Color::White) {
+    //printf("test: %i\n", this->board_.getTotalMoves());
 
     try {
         std::size_t skippingChars = this->readTags(input);
