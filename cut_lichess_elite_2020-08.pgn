@@ -1,0 +1,108 @@
+[Event "Rated Blitz tournament https://lichess.org/tournament/Y9v9LrwW"]
+[LichessURL "https://lichess.org/Mk0P52uU"]
+[Date "2020.08.01"]
+[Round "-"]
+[White "Pinichess"]
+[Black "user_silva2002"]
+[Result "0-1"]
+[WhiteElo "2348"]
+[BlackElo "2440"]
+[ECO "B77"]
+[Opening "Sicilian Defense: Dragon Variation, Yugoslav Attack, Main Line"]
+[TimeControl "180+2"]
+[UTCDate "2020.08.01"]
+[UTCTime "00:00:16"]
+[Termination "Normal"]
+[WhiteRatingDiff "-5"]
+[BlackRatingDiff "+5"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be3 Bg7 7. Bc4 O-O
+8. f3 Nc6 9. Qd2 a6 10. Bb3 Nxd4 11. Bxd4 b5 12. a4 b4 13. Nd5 Nxd5 14.
+Bxd5 Rb8 15. a5 e6 16. Bb3 d5 17. Bxg7 Kxg7 18. exd5 exd5 19. Qd4+ Kg8 20.
+O-O Be6 21. Rfd1 Qc7 22. Kh1 Rb5 23. Ra4 Qe7 24. Re1 Qd6 25. Re5 Rc8 26. h3
+Rcc5 27. f4 Rxa5 28. Qxb4 Rab5 29. Qd4 a5 30. Ra3 Rb4 31. Qd2 Qd8 32. Qf2
+Rc8 33. f5 Qf6 34. Qe1 Rf4 35. Bxd5 Bxd5 36. Rxd5 Rxc2 37. Raxa5 Qg5 38.
+Ra8+ Kg7 39. Rd2 Rxd2 40. Qxd2 Rf1+ 0-1
+
+[Event "Rated Blitz tournament https://lichess.org/tournament/q4Q26VPN"]
+[LichessURL "https://lichess.org/RcmtcfuP"]
+[Date "2020.08.01"]
+[Round "-"]
+[White "Dybamo"]
+[Black "ZicoenCuba"]
+[Result "1-0"]
+[WhiteTitle "GM"]
+[WhiteElo "2590"]
+[BlackElo "2498"]
+[ECO "B95"]
+[Opening "Sicilian Defense: Najdorf Variation"]
+[TimeControl "180+2"]
+[UTCDate "2020.08.01"]
+[UTCTime "00:00:30"]
+[Termination "Normal"]
+[WhiteRatingDiff "+5"]
+[BlackRatingDiff "-5"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bg5 e6 7. Qe2 Nbd7
+8. f4 Qc7 9. O-O-O Be7 10. g4 b5 11. Bg2 Bb7 12. e5 dxe5 13. fxe5 Ng8 14.
+Bf4 Nc5 15. Rhf1 O-O-O 16. Bg3 Nh6 17. Kb1 Rhf8 18. h4 Ng8 19. g5 Rd7 20.
+Ndxb5 axb5 21. Nxb5 Qb6 22. Nd6+ Bxd6 23. exd6 Bxg2 24. Qxg2 Rb7 25. b3 Rd8
+26. Rf3 Rdd7 27. Rc3 Kd8 28. Bf2 Rxd6 29. Rxd6+ Qxd6 30. Bxc5 Qd1+ 31. Kb2
+Rb8 32. Rd3+ 1-0
+
+[Event "Rated Blitz game"]
+[LichessURL "https://lichess.org/RRj72NPW"]
+[Date "2020.08.01"]
+[Round "-"]
+[White "gsoppe"]
+[Black "LiderChessAcademy"]
+[Result "0-1"]
+[WhiteTitle "IM"]
+[BlackTitle "FM"]
+[WhiteElo "2412"]
+[BlackElo "2464"]
+[ECO "D80"]
+[Opening "Grünfeld Defense: Stockholm Variation"]
+[TimeControl "180+0"]
+[UTCDate "2020.08.01"]
+[UTCTime "00:00:49"]
+[Termination "Time forfeit"]
+[WhiteRatingDiff "-5"]
+[BlackRatingDiff "+5"]
+
+1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Bg5 Ne4 5. Nxe4 dxe4 6. e3 Bg7 7. Qd2 c5 8.
+d5 Qb6 9. O-O-O Nd7 10. Ne2 Ne5 11. Nc3 f5 12. Be2 Bd7 13. f3 exf3 14. gxf3
+Qa5 15. f4 Nf7 16. Bh4 Nd6 17. Qc2 Rb8 18. Qb3 b5 19. cxb5 Nxb5 20. Nxb5
+Bxb5 21. d6 c4 22. Bxc4 Bxc4 23. Qxc4 Bxb2+ 24. Kc2 Bg7 25. Rb1 Qd8 26. d7+
+Kf8 27. Qe6 Qc7+ 28. Kd3 Qc3+ 29. Ke2 Qc2+ 30. Kf3 Qe4+ 31. Qxe4 fxe4+ 32.
+Kxe4 Kf7 33. Rxb8 Rxb8 34. Rd1 Rd8 35. Kd5 Bf6 36. Bxf6 Kxf6 37. Kc6 Ke6
+38. Kc7 h5 39. Kxd8 Kf7 40. Kc7 Kf6 41. d8=Q Kf5 42. Rd7 e6 43. Qe7 h4 44.
+Rd6 Ke4 45. Qxe6+ Kf3 46. Qxg6 Kf2 47. Qh5 Kxe3 0-1
+
+[Event "Rated Blitz game"]
+[LichessURL "https://lichess.org/RHKk26I2"]
+[Date "2020.08.01"]
+[Round "-"]
+[White "Ahmed-abdelsattar"]
+[Black "melgabry"]
+[Result "0-1"]
+[WhiteElo "2402"]
+[BlackElo "2398"]
+[ECO "B00"]
+[Opening "Owen Defense"]
+[TimeControl "180+2"]
+[UTCDate "2020.08.01"]
+[UTCTime "00:00:55"]
+[Termination "Normal"]
+[WhiteRatingDiff "-5"]
+[BlackRatingDiff "+6"]
+
+1. e4 b6 2. d4 Bb7 3. Bd3 Nc6 4. c3 e5 5. Nf3 exd4 6. cxd4 Nb4 7. Nc3 Nxd3+
+8. Qxd3 Nf6 9. e5 Nd5 10. O-O Be7 11. Ne4 h6 12. Re1 O-O 13. a3 Re8 14. Ng3
+Bf8 15. Bd2 d6 16. Rac1 Qd7 17. Nf5 Re6 18. Qe4 Rae8 19. Qg4 Kh7 20. Qh3
+Bc8 21. Ng5+ Kg8 22. Nxe6 Qxe6 23. exd6 Nf4 24. Qg4 Ne2+ 25. Rxe2 Qxe2 26.
+Qxe2 Rxe2 27. Ne3 Rxd2 28. Rxc7 Be6 29. d5 Bxd5 30. d7 Be6 31. Kf1 Rxd7 32.
+Rc8 Rd1+ 33. Nxd1 Bxc8 34. Nc3 Be6 35. Ke2 a6 36. Kd3 Bc5 37. f3 b5 38. g4
+Kf8 39. Ne4 Be7 40. Kd4 Ke8 41. Ke5 Kd7 42. h3 f6+ 43. Kd4 Kc6 44. Ng3 Bd6
+45. Nh5 Be5+ 46. Ke4 g6 47. Ng7 Bd5+ 48. Ke3 Bxb2 49. f4 Bxa3 50. Ne8 Be7
+51. h4 b4 52. Kd4 a5 53. f5 gxf5 54. gxf5 a4 55. Ng7 Bf7 0-1

@@ -99,11 +99,16 @@ namespace ChessTrainer::Notation {
                 "invalid castle: %arg%"
             };
         };
-        using tag = std::pair<std::string, std::string>;
+        using GameTag = std::pair<std::string, std::string>;
 
         explicit PGN(const std::string& input);
+        PGN() = default;
+        ~PGN() = default;
+        PGN(const PGN& p);
+
         [[nodiscard]] bool isValid() const;
         const Board getBoard() const;
+        const std::vector<GameTag> getTags() const;
 
         // --
         private:
@@ -142,11 +147,11 @@ namespace ChessTrainer::Notation {
         static IPiece::shared_ptr createPieceFromDiminutive(const IPiece::Color& color,
                                                             char diminutive);
 
-        std::vector<tag> tags_;
+        std::vector<GameTag> tags_;
         Error error_;
         const std::vector<std::vector<std::string>> required_tags_ = {
             {"event"},
-            {"site"},
+            //{"site"},
             {"date", "utcdate"},
             //{"round"},
             {"white"},

@@ -3,7 +3,6 @@
 #include <sstream>
 #include <bitset>
 #include "FEN.hpp"
-#include "../../Utils.hpp"
 
 bool ChessTrainer::Notation::FEN::invalidate(const std::string& reasons) {
     std::cerr << "Invalid FEN: " << reasons << std::endl;
@@ -36,13 +35,9 @@ std::string ChessTrainer::Notation::FEN::getCastleFormat() {
     std::string fmt;
     static const std::function<void(IPiece::Color)>
         f = [&castle, &fmt](const IPiece::Color& c) {
-        //std::bitset<8> b(castle[c]);
-        //std::cout << c << " " << b << std::endl;
         if ((castle[c] & Board::KING_FORBIDDEN) == 0) {
             const auto
                 castlePiece = Board::QUEENSIDE_CASTLE | Board::KINGSIDE_CASTLE;
-            //b = castle[c] & Board::LEFT_ROOK_FORBIDDEN;
-            //std::cout << "-> " << b << " / " << std::bitset<8>(castlePiece) << std::endl;
             if ((castle[c] & castlePiece) == castlePiece)
                 return;
             if ((castle[c] & Board::RIGHT_ROOK_FORBIDDEN) == 0)

@@ -25,17 +25,11 @@ bool ChessTrainer::Notation::PGN::updateCursor(const std::string& input,
                 continue;
             buffer = input.substr(startIdx, endgame - (startIdx + 1));
             startIdx = endgame;
-            //printf("[%i/endgame] Move found: '%s'\n",
-            //       currentMove,
-            //       buffer.c_str());
             return false;
         }
         return false;
     }
     buffer = input.substr(startIdx, moveFound - (startIdx + 1));
-    //printf("[%i] Move found: '%s'\n",
-    //       currentMove,
-    //       buffer.c_str());
     startIdx = moveFound;
     return true;
 }
@@ -52,11 +46,11 @@ void ChessTrainer::Notation::PGN::getGameState(
     for (const auto& s: validGameState) {
         const auto& m = input.find(s.first);
         if (m != std::string::npos) {
-            if (m + s.first.size() != input.size())
-                throw Error(Error::GAME_RESULT_INVALID_PLACEMENT);
+            //if (m + s.first.size() != input.size()) // TODO: Add this but remove blank lines/spaces
+            //    throw Error(Error::GAME_RESULT_INVALID_PLACEMENT);
             this->board_.setGameState(s.second);
-            std::cout << "Last move detected ; state of the game -> "
-                      << this->board_.getGameStateName() << std::endl;
+            //std::cout << "Last move detected ; state of the game -> "
+            //          << this->board_.getGameStateName() << std::endl;
             return;
         }
     }
@@ -248,6 +242,7 @@ size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
     std::string tagTitle;
     size_t skippingChars = 0;
     const auto& lines = ChessTrainer::Utils::splitString(input, '\n');
+    bool mustStop = false;
 
     for (const auto& line: lines) {
         skippingChars += line.length() + 1;
@@ -274,6 +269,7 @@ size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
             }
             if (!tagOpened && !tagContentOpened) {
                 skippingChars -= line.length() + 1;
+                mustStop = true;
                 break;
             }
             if (tagContentOpened)
@@ -281,6 +277,8 @@ size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
             else if (!std::isspace(c))
                 tagTitle += c;
         }
+        if (mustStop)
+            break;
     }
     if (tagContentOpened)
         throw Error(Error::TAG_QUOTE_UNCLOSED);
@@ -289,7 +287,7 @@ size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
     for (const auto& rTag : ChessTrainer::Notation::PGN::required_tags_) {
         if (std::find_if(this->tags_.begin(),
                          this->tags_.end(),
-                         [rTag](const tag& t) {
+                         [rTag](const GameTag& t) {
                              std::string tagName = t.first;
                              std::transform(tagName.begin(),
                                             tagName.end(),
@@ -322,7 +320,7 @@ bool ChessTrainer::Notation::PGN::isValid() const {
 ChessTrainer::Notation::PGN::PGN(const std::string& input)
     : board_(IPiece::Color::White) {
     //printf("test: %i\n", this->board_.getTotalMoves());
-
+    //printf("input: '%s'\n", input.c_str());
     try {
         std::size_t skippingChars = this->readTags(input);
         //std::cout << "Tags:" << std::endl;
@@ -357,4 +355,13 @@ ChessTrainer::IPiece::shared_ptr ChessTrainer::Notation::PGN::createPieceFromDim
         case 'B':return std::make_shared<Bishop>(color);
         default:return nullptr;
     }
+}
+const std::vector<ChessTrainer::Notation::PGN::GameTag> ChessTrainer::Notation::PGN::getTags() const {
+    return this->tags_;
+}
+
+ChessTrainer::Notation::PGN::PGN(const ChessTrainer::Notation::PGN& p) {
+    this->board_ = p.board_;
+    this->tags_ = p.tags_;
+    this->error_ = p.error_;
 }
