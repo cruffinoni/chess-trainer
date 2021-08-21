@@ -107,6 +107,7 @@ namespace ChessTrainer::Notation {
         PGN(const PGN& p);
 
         [[nodiscard]] bool isValid() const;
+        Error getError() const;
         const Board getBoard() const;
         const std::vector<GameTag> getTags() const;
 

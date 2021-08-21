@@ -16,6 +16,7 @@ namespace ChessTrainer {
     class LichessLearner {
         public:
         LichessLearner(const std::string& file);
+        std::vector<Notation::PGN> getGames() const;
 
         void learn();
         std::vector<Notation::PGN> findGamesByECO(const std::string& ECO) const;

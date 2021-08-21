@@ -314,7 +314,7 @@ void ChessTrainer::Notation::PGN::invalidate() {
 }
 
 bool ChessTrainer::Notation::PGN::isValid() const {
-    return this->error_;
+    return !this->error_;
 }
 
 ChessTrainer::Notation::PGN::PGN(const std::string& input)
@@ -364,4 +364,8 @@ ChessTrainer::Notation::PGN::PGN(const ChessTrainer::Notation::PGN& p) {
     this->board_ = p.board_;
     this->tags_ = p.tags_;
     this->error_ = p.error_;
+}
+
+ChessTrainer::Notation::PGN::Error ChessTrainer::Notation::PGN::getError() const {
+    return this->error_;
 }

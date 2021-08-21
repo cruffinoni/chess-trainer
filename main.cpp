@@ -11,7 +11,16 @@
 
 void displayGamesByECO(const ChessTrainer::LichessLearner &l, const std::string& eco) {
     std::cout << "===== Displaying games '" << eco << "' =====" << std::endl;
-    const auto& games = l.findGamesByECO(eco);
+    //const auto& games = l.findGamesByECO(eco);
+    const auto games = l.getGames();
+    for (const auto& g: games) {
+        if (!g.isValid())
+            printf("Game invalid: %s\n", g.getError().toString().c_str());
+        else {
+            printf("game is valid\n");
+            g.getBoard().print();
+        }
+    }
     //printf("games: %zu\n", games.size());
     //for (const auto &item : games) {
     //    item.getBoard().print();
@@ -20,40 +29,39 @@ void displayGamesByECO(const ChessTrainer::LichessLearner &l, const std::string&
 }
 
 int main() {
-    //ChessTrainer::Shell s;
-    //s.run();
-    //ChessTrainer::Notation::PGN pgn("[Event \"Rated Blitz tournament https://lichess.org/tournament/Y9v9LrwW\"]\n"
-    //                                "[LichessURL \"https://lichess.org/Mk0P52uU\"]\n"
-    //                                "[Date \"2020.08.01\"]\n"
-    //                                "[Round \"-\"]\n"
-    //                                "[White \"Pinichess\"]\n"
-    //                                "[Black \"user_silva2002\"]\n"
-    //                                "[Result \"0-1\"]\n"
-    //                                "[WhiteElo \"2348\"]\n"
-    //                                "[BlackElo \"2440\"]\n"
-    //                                "[ECO \"B77\"]\n"
-    //                                "[Opening \"Sicilian Defense: Dragon Variation, Yugoslav Attack, Main Line\"]\n"
-    //                                "[TimeControl \"180+2\"]\n"
-    //                                "[UTCDate \"2020.08.01\"]\n"
-    //                                "[UTCTime \"00:00:16\"]\n"
-    //                                "[Termination \"Normal\"]\n"
-    //                                "[WhiteRatingDiff \"-5\"]\n"
-    //                                "[BlackRatingDiff \"+5\"]\n"
-    //                                "\n"
-    //                                "1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 g6 6. Be3 Bg7 7. Bc4 O-O\n"
-    //                                "8. f3 Nc6 9. Qd2 a6 10. Bb3 Nxd4 11. Bxd4 b5 12. a4 b4 13. Nd5 Nxd5 14.\n"
-    //                                "Bxd5 Rb8 15. a5 e6 16. Bb3 d5 17. Bxg7 Kxg7 18. exd5 exd5 19. Qd4+ Kg8 20.\n"
-    //                                "O-O Be6 21. Rfd1 Qc7 22. Kh1 Rb5 23. Ra4 Qe7 24. Re1 Qd6 25. Re5 Rc8 26. h3\n"
-    //                                "Rcc5 27. f4 Rxa5 28. Qxb4 Rab5 29. Qd4 a5 30. Ra3 Rb4 31. Qd2 Qd8 32. Qf2\n"
-    //                                "Rc8 33. f5 Qf6 34. Qe1 Rf4 35. Bxd5 Bxd5 36. Rxd5 Rxc2 37. Raxa5 Qg5 38.\n"
-    //                                "Ra8+ Kg7 39. Rd2 Rxd2 40. Qxd2 Rf1+ 0-1\n"
-    //                                "");
-    //pgn.getBoard().print();
+    ChessTrainer::Notation::PGN pgn("[Event \"Rated Blitz game\"]\n"
+                                    "[LichessURL \"https://lichess.org/RRj72NPW\"]\n"
+                                    "[Date \"2020.08.01\"]\n"
+                                    "[Round \"-\"]\n"
+                                    "[White \"gsoppe\"]\n"
+                                    "[Black \"LiderChessAcademy\"]\n"
+                                    "[Result \"0-1\"]\n"
+                                    "[WhiteTitle \"IM\"]\n"
+                                    "[BlackTitle \"FM\"]\n"
+                                    "[WhiteElo \"2412\"]\n"
+                                    "[BlackElo \"2464\"]\n"
+                                    "[ECO \"D80\"]\n"
+                                    "[Opening \"Grünfeld Defense: Stockholm Variation\"]\n"
+                                    "[TimeControl \"180+0\"]\n"
+                                    "[UTCDate \"2020.08.01\"]\n"
+                                    "[UTCTime \"00:00:49\"]\n"
+                                    "[Termination \"Time forfeit\"]\n"
+                                    "[WhiteRatingDiff \"-5\"]\n"
+                                    "[BlackRatingDiff \"+5\"]\n"
+                                    "\n"
+                                    "1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Bg5 Ne4 5. Nxe4 dxe4 6. e3 Bg7 7. Qd2 c5 8.\n"
+                                    "d5 Qb6 9. O-O-O Nd7 10. Ne2 Ne5 11. Nc3 f5 12. Be2 Bd7 13. f3 exf3 14. gxf3\n"
+                                    "Qa5 15. f4 Nf7 16. Bh4 Nd6 17. Qc2 Rb8 18. Qb3 b5 19. cxb5 Nxb5 20. Nxb5\n"
+                                    "Bxb5 21. d6 c4 22. Bxc4 Bxc4 23. Qxc4 Bxb2+ 24. Kc2 Bg7 25. Rb1 Qd8 26. d7+\n"
+                                    "Kf8 27. Qe6 Qc7+ 28. Kd3 Qc3+ 29. Ke2 Qc2+ 30. Kf3 Qe4+ 31. Qxe4 fxe4+ 32.\n"
+                                    "Kxe4 Kf7 33. Rxb8 Rxb8 34. Rd1 Rd8 35. Kd5 Bf6 36. Bxf6 Kxf6 37. Kc6 Ke6\n"
+                                    "38. Kc7 h5 39. Kxd8 Kf7 40. Kc7 Kf6 41. d8=Q Kf5 42. Rd7 e6 43. Qe7 h4 44.\n"
+                                    "Rd6 Ke4 45. Qxe6+ Kf3 46. Qxg6 Kf2 47. Qh5 Kxe3 0-1");
+    pgn.getBoard().print();
 
 
-    ChessTrainer::LichessLearner l("./test.pgn");
-    l.learn();
-    displayGamesByECO(l, "C44");
+    //ChessTrainer::LichessLearner l("./test.pgn");
+    //l.learn();
     return 0;
 }
 
