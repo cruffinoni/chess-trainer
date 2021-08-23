@@ -444,3 +444,13 @@ ChessTrainer::Board::Board(const ChessTrainer::Board& b) {
 bool ChessTrainer::Board::isCastleSet(Board::castleState_e castle, const IPiece::Color color) const {
     return this->castle_[color] & castle;
 }
+
+ChessTrainer::IPiece::shared_ptr
+ChessTrainer::Board::getSharedPtrPiece(const ChessTrainer::Coordinates& pos) {
+    return this->board_[pos.toBoardIndex()];
+}
+
+const ChessTrainer::IPiece&
+ChessTrainer::Board::getPiece(const ChessTrainer::Coordinates& pos) {
+    return *this->board_[pos.toBoardIndex()];
+}

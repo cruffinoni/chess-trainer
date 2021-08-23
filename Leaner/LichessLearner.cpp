@@ -22,6 +22,7 @@ void ChessTrainer::LichessLearner::learn() {
         throw std::logic_error("file is invalid: can't learn");
     std::string line;
     std::string pgn;
+    size_t count = 0;
     bool isTag = false;
     while (std::getline(this->file_, line)) {
         //std::cout << "line : '" << line << "'" << std::endl;
@@ -30,7 +31,13 @@ void ChessTrainer::LichessLearner::learn() {
         else if (line[0] == '[') {
             if (!isTag && !pgn.empty()) {
                 //std::cout << "end of game?\n" << pgn << std::endl;
-                this->games_.emplace_back(pgn);
+                try {
+                    this->games_.emplace_back(pgn);
+                } catch (const std::out_of_range &e) {
+                    //printf("out_of_range: '%s'\n", e.what());
+                } catch (const Notation::PGN::Error& e) {
+                    //printf("pgn err: '%s'\n", e.what());
+                }
                 //try {
                 //    printf("game added\n");
                 //    this->games_.emplace_back(pgn);
@@ -38,6 +45,10 @@ void ChessTrainer::LichessLearner::learn() {
                 //    std::cerr << "invalid game: " << e.toString() << std::endl;
                 //}
                 pgn.clear();
+                if (++count % 50 == 0)
+                    std::cout << "Number of games registered: " << count << std::endl;
+                if (count >= 10000)
+                    return;
             }
             //printf("set isTag to true\n");
             isTag = true;
@@ -48,7 +59,13 @@ void ChessTrainer::LichessLearner::learn() {
     //printf("pgn? '%s'\n", pgn.c_str());
     if (!pgn.empty()) {
         //std::cout << "last game detected:\n" << pgn << std::endl;
-        this->games_.emplace_back(pgn);
+                try {
+                    this->games_.emplace_back(pgn);
+                } catch (const std::out_of_range &e) {
+                    //printf("out_of_range: '%s'\n", e.what());
+                } catch (const Notation::PGN::Error& e) {
+                    //printf("pgn err: '%s'\n", e.what());
+                }
         //try {
         //    //printf("game added\n");
         //    this->games_.emplace_back(pgn);
@@ -67,7 +84,7 @@ void ChessTrainer::LichessLearner::learn() {
     //    std::cout << "Opening: " << o->second << std::endl;
     //    //g.getBoard().print();
     //}
-    std::cout << "games: " << this->games_.size() << std::endl;
+    //std::cout << "games: " << this->games_.size() << std::endl;
 }
 std::vector<ChessTrainer::Notation::PGN> ChessTrainer::LichessLearner::findGamesByECO(
     const std::string& ECO) const {

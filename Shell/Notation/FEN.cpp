@@ -33,21 +33,23 @@ bool ChessTrainer::Notation::FEN::retrieveTotalMove(const std::string& data) {
 std::string ChessTrainer::Notation::FEN::getCastleFormat() {
     const auto castle = this->getBoard().getCastleState();
     std::string fmt;
-    static const std::function<void(IPiece::Color)>
-        f = [&castle, &fmt](const IPiece::Color& c) {
+    const std::function<std::string(IPiece::Color)>
+        f = [&castle](const IPiece::Color& c) -> std::string {
+        std::string fmt;
         if ((castle[c] & Board::KING_FORBIDDEN) == 0) {
             const auto
                 castlePiece = Board::QUEENSIDE_CASTLE | Board::KINGSIDE_CASTLE;
             if ((castle[c] & castlePiece) == castlePiece)
-                return;
+                return fmt;
             if ((castle[c] & Board::RIGHT_ROOK_FORBIDDEN) == 0)
                 fmt += c == IPiece::Black ? "k" : "K";
             if ((castle[c] & Board::LEFT_ROOK_FORBIDDEN) == 0)
                 fmt += c == IPiece::Black ? "q" : "Q";
         }
+        return fmt;
     };
-    f(IPiece::Color::White);
-    f(IPiece::Color::Black);
+    fmt += f(IPiece::Color::White);
+    fmt += f(IPiece::Color::Black);
     if (fmt.empty())
         fmt = "-";
     return fmt;

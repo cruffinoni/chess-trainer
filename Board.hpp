@@ -112,7 +112,10 @@ namespace ChessTrainer {
         bool movePiece(const IPiece::helperPieceData& data,
                        bool registerMove = true);
         void setPiece(const Coordinates& pos,
-                      const std::shared_ptr<ChessTrainer::IPiece>& piece);
+                      const IPiece::shared_ptr& piece);
+        IPiece::shared_ptr getSharedPtrPiece(const Coordinates& pos);
+        const IPiece& getPiece(const Coordinates& pos);
+
         bool canMove(const ChessTrainer::IPiece& piece, const Coordinates& to);
         void printAllMoves() const;
         void printLastMove() const;

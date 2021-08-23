@@ -38,6 +38,10 @@ namespace ChessTrainer::Notation {
                 PLAY_BEING_CHECKMATE,
                 INVALID_CASTLE,
 
+                NOT_PROMOTING_PAWN,
+                WRONG_COLOR_PROMOTED_PAWN,
+                INVALID_PROMOTED_DIMINUTIVE,
+
                 _RESERVED_PARSING_ERROR
             };
             Error(ErrorType parsingError, const std::string& argument) : _err(
@@ -96,7 +100,10 @@ namespace ChessTrainer::Notation {
                 "'%arg%' is an invalid piece notation, please check",
                 "%arg% is an illegal move",
                 "the game shouldn't continue if one of the players is in checkmate",
-                "invalid castle: %arg%"
+                "invalid castle: %arg%",
+                "the promoted piece is not a pawn",
+                "the promoted pawn must be the same color as the player's pawn",
+                "%arg% is an invalid character while promoting piece"
             };
         };
         using GameTag = std::pair<std::string, std::string>;
@@ -129,6 +136,7 @@ namespace ChessTrainer::Notation {
         void readMoves(const std::string& input);
 
         void applyMove(const std::string& move, int currentMove);
+        void applyPromotion(const std::string& move, ChessTrainer::IPiece::Color color);
         static void removeComments(std::string& buffer);
         static void removeRecurrentMoveNumber(std::string& buffer,
                                               int move);

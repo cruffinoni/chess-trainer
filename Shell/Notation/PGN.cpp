@@ -39,9 +39,9 @@ void ChessTrainer::Notation::PGN::getGameState(
     const static std::vector<std::pair<std::string, Board::gameState_t>>
         validGameState = {
         {"1/2-1/2", Board::ENDED | Board::DRAW},
-        {"1-0", Board::ENDED | Board::WHITE},
-        {"0-1", Board::ENDED | Board::BLACK},
-        {"*", Board::IN_PROGRESS},
+        {"1-0",     Board::ENDED | Board::WHITE},
+        {"0-1",     Board::ENDED | Board::BLACK},
+        {"*",       Board::IN_PROGRESS},
     };
     for (const auto& s: validGameState) {
         const auto& m = input.find(s.first);
@@ -83,7 +83,7 @@ void ChessTrainer::Notation::PGN::removeComments(std::string& buffer) {
 
 void ChessTrainer::Notation::PGN::removeRecurrentMoveNumber(std::string& buffer,
                                                             int move) {
-    const static auto
+    const auto
         removePart = [&buffer](const std::string& toRemove) -> void {
         size_t start = buffer.find(toRemove);
         if (start != std::string::npos)
@@ -108,7 +108,8 @@ void ChessTrainer::Notation::PGN::checkForCheckOrMate(std::string& buffer) {
     buffer.erase(pieceIdx, 1);
 }
 
-ChessTrainer::IPiece::helperPieceData ChessTrainer::Notation::PGN::getPieceDataFromNotation(
+ChessTrainer::IPiece::helperPieceData
+ChessTrainer::Notation::PGN::getPieceDataFromNotation(
     const std::string& originalMove,
     const std::string& notation,
     const IPiece::Color& color) {
@@ -135,7 +136,8 @@ ChessTrainer::IPiece::helperPieceData ChessTrainer::Notation::PGN::getPieceDataF
 }
 
 
-std::optional<ChessTrainer::IPiece::helperPieceData> ChessTrainer::Notation::PGN::checkForTakeMove(
+std::optional<ChessTrainer::IPiece::helperPieceData>
+ChessTrainer::Notation::PGN::checkForTakeMove(
     const std::string& originalMove,
     std::string& move,
     const ChessTrainer::IPiece::Color& color) {
@@ -147,8 +149,9 @@ std::optional<ChessTrainer::IPiece::helperPieceData> ChessTrainer::Notation::PGN
     return getPieceDataFromNotation(originalMove, move, color);
 }
 
-ChessTrainer::IPiece::helperPieceData ChessTrainer::Notation::PGN::getPiece(std::string move,
-                                                                            const IPiece::Color& color) {
+ChessTrainer::IPiece::helperPieceData
+ChessTrainer::Notation::PGN::getPiece(std::string move,
+                                      const IPiece::Color& color) {
     const std::string& cpy = move.substr();
     this->checkForCheckOrMate(move);
     const auto& takingPiece =
@@ -176,45 +179,39 @@ void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
                                             int currentMove) {
     auto moveCpy = move.substr();
     removeComments(moveCpy);
-    //printf("After removing comments: '%s'\n", moveCpy.c_str());
     this->removeRecurrentMoveNumber(moveCpy, currentMove);
-    //printf("After recurrent move numbers: '%s'\n", moveCpy.c_str());
     const auto& vector = Utils::splitStringBySpace(moveCpy);
     std::vector<std::string> rawCoordinates;
     for (const auto& v: vector)
         if (!v.empty())
             rawCoordinates.push_back(v);
-    if (rawCoordinates.size() > 2) {
-        //std::cerr << "move " << move << std::endl;
+    if (rawCoordinates.size() > 2)
         throw Error(Error::INVALID_NUMBER_OF_COORDINATES, move);
-    }
-
-    IPiece::Color currColor = IPiece::Color::White;
-    for (auto& rc: rawCoordinates) {
-        const auto& castleType = getCastleType(rc, currColor);
+    const auto& tryToApplyMoveToBoard = [this](const std::string& move,
+                              const IPiece::Color color) {
+        const auto& castleType = getCastleType(move, color);
         if (castleType != Board::NONE) {
-            //std::bitset<12> b (castleType);
-            if (!this->board_.doCastle(castleType, currColor)) {
+            if (!this->board_.doCastle(castleType, color)) {
                 std::ostringstream o;
-                o << "for " << currColor << " at " << rc;
+                o << "for " << color << " at " << move;
                 throw Error(Error::INVALID_CASTLE, o.str());
             }
-        } else {
-            const auto& piece = getPiece(rc, currColor);
-            //std::cout << "Move " <<  rc << std::endl;
-            //if (piece.priorLine > 0)
-            //    printf("Prioritized line: %c\n", piece.priorLine);
-            //else
-            //    printf("Prioritized line: %i\n", piece.priorLine);
-            //std::cout << "Piece: " << *piece.piece << " to -> "
-            //          << piece.coordinates << std::endl;
-            if (!this->board_.movePiece(piece)) {
-                //this->board_.print();
-                throw Error(Error::ILLEGAL_MOVE, rc);
-            }
+            return;
         }
-        currColor = IPiece::Color::Black;
-    }
+        if (move.find('=') != std::string::npos) {
+            this->applyPromotion(move, color);
+            return;
+        }
+        const auto& piece = getPiece(move, color);
+        if (!this->board_.movePiece(piece)) {
+            //this->board_.print();
+            throw Error(Error::ILLEGAL_MOVE, move);
+        }
+    };
+
+    tryToApplyMoveToBoard(rawCoordinates[0], IPiece::Color::White);
+    if (rawCoordinates.size() > 1)
+        tryToApplyMoveToBoard(rawCoordinates[1], IPiece::Color::Black);
 }
 
 void ChessTrainer::Notation::PGN::readMoves(const std::string& input) {
@@ -295,9 +292,12 @@ size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
                                             [](unsigned char c) {
                                                 return std::tolower(c);
                                             });
-                             return std::any_of(rTag.begin(), rTag.end(), [tagName](const std::string& tagAlternative) {
-                                 return tagAlternative == tagName;
-                             });
+                             return std::any_of(rTag.begin(),
+                                                rTag.end(),
+                                                [tagName](const std::string& tagAlternative) {
+                                                    return tagAlternative ==
+                                                        tagName;
+                                                });
                          }) == this->tags_.end())
             throw Error(Error::TAG_MANDATORY_MISSING, rTag[0]);
     }
@@ -305,10 +305,10 @@ size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
 }
 
 void ChessTrainer::Notation::PGN::invalidate() {
-    std::cerr << "Invalid PGN: " << this->error_ << std::endl;
-    std::cerr << "FEN of the current position: "
-              << Notation::FEN(this->board_, IPiece::White).getFen()
-              << std::endl;
+    //std::cerr << "Invalid PGN: " << this->error_ << std::endl;
+    //std::cerr << "FEN of the current position: "
+    //          << Notation::FEN(this->board_, IPiece::White).getFen()
+    //          << std::endl;
     this->tags_.clear();
     this->board_.clear();
 }
@@ -331,9 +331,9 @@ ChessTrainer::Notation::PGN::PGN(const std::string& input)
             return;
         }
         this->readMoves(input.substr(skippingChars));
-        std::cout << "FEN of the current position: "
-              << Notation::FEN(this->board_, IPiece::White).getFen()
-              << std::endl;
+        //std::cout << "FEN of the current position: "
+        //          << Notation::FEN(this->board_, IPiece::White).getFen()
+        //          << std::endl;
     } catch (const Error& err) {
         this->error_ = err;
         this->invalidate();
@@ -344,19 +344,27 @@ const ChessTrainer::Board ChessTrainer::Notation::PGN::getBoard() const {
     return this->board_;
 }
 
-ChessTrainer::IPiece::shared_ptr ChessTrainer::Notation::PGN::createPieceFromDiminutive(
+ChessTrainer::IPiece::shared_ptr
+ChessTrainer::Notation::PGN::createPieceFromDiminutive(
     const ChessTrainer::IPiece::Color& color,
     char diminutive) {
     switch (diminutive) {
-        case 'R':return std::make_shared<Rock>(color);
-        case 'K':return std::make_shared<King>(color);
-        case 'N':return std::make_shared<Knight>(color);
-        case 'Q':return std::make_shared<Queen>(color);
-        case 'B':return std::make_shared<Bishop>(color);
-        default:return nullptr;
+        case 'R':
+            return std::make_shared<Rock>(color);
+        case 'K':
+            return std::make_shared<King>(color);
+        case 'N':
+            return std::make_shared<Knight>(color);
+        case 'Q':
+            return std::make_shared<Queen>(color);
+        case 'B':
+            return std::make_shared<Bishop>(color);
+        default:
+            return nullptr;
     }
 }
-const std::vector<ChessTrainer::Notation::PGN::GameTag> ChessTrainer::Notation::PGN::getTags() const {
+const std::vector<ChessTrainer::Notation::PGN::GameTag>
+ChessTrainer::Notation::PGN::getTags() const {
     return this->tags_;
 }
 
@@ -366,6 +374,33 @@ ChessTrainer::Notation::PGN::PGN(const ChessTrainer::Notation::PGN& p) {
     this->error_ = p.error_;
 }
 
-ChessTrainer::Notation::PGN::Error ChessTrainer::Notation::PGN::getError() const {
+ChessTrainer::Notation::PGN::Error
+ChessTrainer::Notation::PGN::getError() const {
     return this->error_;
+}
+
+void ChessTrainer::Notation::PGN::applyPromotion(const std::string& move,
+                                                 ChessTrainer::IPiece::Color color) {
+    const auto equalChar = move.find('=');
+    int moveIdx;
+    Coordinates toCoord(move.substr(0, equalChar));
+
+    if (color == IPiece::Color::Black)
+        moveIdx = 1;
+    else
+        moveIdx = -1;
+
+    Coordinates fromCoord(toCoord.getX(), toCoord.getY() + moveIdx);
+    const auto& piece = this->board_.getPiece(fromCoord);
+    if (!Pawn::isPawn(piece))
+        throw Error(Error::NOT_PROMOTING_PAWN);
+    if (piece.getColor() != color)
+        throw Error(Error::WRONG_COLOR_PROMOTED_PAWN);
+
+    auto promotedPiece = this->createPieceFromDiminutive(color,
+                                                         move[equalChar + 1]);
+    if (promotedPiece == nullptr)
+        throw Error(Error::INVALID_PROMOTED_DIMINUTIVE);
+    this->board_.setPiece(fromCoord, std::make_shared<ChessTrainer::IPiece>());
+    this->board_.setPiece(toCoord, promotedPiece);
 }

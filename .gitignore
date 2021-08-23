@@ -36,3 +36,5 @@
 cmake-build-debug/
 out/
 .vs
+
+build/
