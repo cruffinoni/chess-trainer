@@ -34,9 +34,14 @@ void ChessTrainer::LichessLearner::learn() {
                 try {
                     this->games_.emplace_back(pgn);
                 } catch (const std::out_of_range &e) {
-                    //printf("out_of_range: '%s'\n", e.what());
+                    //printf("error?\n");
+                    printf("out_of_range: '%s'\n", e.what());
+                    printf("pgn: '%s'\n", pgn.c_str());
+                    return;
                 } catch (const Notation::PGN::Error& e) {
-                    //printf("pgn err: '%s'\n", e.what());
+                    printf("pgn err: '%s'\n", e.what());
+                    printf("pgn: '%s'\n", pgn.c_str());
+                    return;
                 }
                 //try {
                 //    printf("game added\n");

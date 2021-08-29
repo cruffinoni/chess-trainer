@@ -116,7 +116,7 @@ namespace ChessTrainer {
         IPiece::shared_ptr getSharedPtrPiece(const Coordinates& pos);
         const IPiece& getPiece(const Coordinates& pos);
 
-        bool canMove(const ChessTrainer::IPiece& piece, const Coordinates& to);
+        bool canMove(const IPiece::helperPieceData& data);
         void printAllMoves() const;
         void printLastMove() const;
         uint32_t countMove() const;

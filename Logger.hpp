@@ -71,6 +71,7 @@ namespace ChessTrainer::Logger {
             open_mode_(open_mode) {
             if (!this->file_.is_open())
                 throw InvalidPath(path);
+            std::cout.setf(std::ios::unitbuf);
         }
 
         Logger(const Logger& log) : Logger(log.title_,

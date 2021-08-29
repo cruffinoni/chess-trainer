@@ -135,15 +135,25 @@ bool ChessTrainer::Board::movePiece(const IPiece::helperPieceData& data,
                                    CASTLE_FORBIDDEN;
                            if (Pawn::isPawn(*data.piece))
                                this->putLastTakes(0);
-                           if (!this->isCastleSet(LEFT_ROOK_FORBIDDEN, data.piece->getColor()) && Rock::isRock(*data.piece)) {
-                               if (data.piece->getColor() == IPiece::White && from == Coordinates("a1") ||
-                               data.piece->getColor() == IPiece::Black && from == Coordinates("a8"))
-                                   this->castle_[data.piece->getColor()] |= LEFT_ROOK_FORBIDDEN;
+                           if (!this->isCastleSet(LEFT_ROOK_FORBIDDEN,
+                                                  data.piece->getColor())
+                               && Rock::isRock(*data.piece)) {
+                               if (data.piece->getColor() == IPiece::White
+                                   && from == Coordinates("a1") ||
+                                   data.piece->getColor() == IPiece::Black
+                                       && from == Coordinates("a8"))
+                                   this->castle_[data.piece->getColor()] |=
+                                       LEFT_ROOK_FORBIDDEN;
                            }
-                           if (!this->isCastleSet(RIGHT_ROOK_FORBIDDEN, data.piece->getColor()) && Rock::isRock(*data.piece)) {
-                               if (data.piece->getColor() == IPiece::White && from == Coordinates("h1") ||
-                               data.piece->getColor() == IPiece::Black && from == Coordinates("h8"))
-                                   this->castle_[data.piece->getColor()] |= RIGHT_ROOK_FORBIDDEN;
+                           if (!this->isCastleSet(RIGHT_ROOK_FORBIDDEN,
+                                                  data.piece->getColor())
+                               && Rock::isRock(*data.piece)) {
+                               if (data.piece->getColor() == IPiece::White
+                                   && from == Coordinates("h1") ||
+                                   data.piece->getColor() == IPiece::Black
+                                       && from == Coordinates("h8"))
+                                   this->castle_[data.piece->getColor()] |=
+                                       RIGHT_ROOK_FORBIDDEN;
                            }
 
                            this->lastMove_.allowEnPassant =
@@ -181,13 +191,13 @@ void ChessTrainer::Board::registerMove(const IPiece::shared_ptr& piece,
     std::string moveNotation;
     if (take) {
         moveNotation =
-            (Pawn::isPawn(*piece) ? std::string(1, from.toStringNotation()[0]) : piece
-                ->getStringDiminutive()) + "x" + to.toStringNotation();
+            (Pawn::isPawn(*piece) ? std::string(1, from.toStringNotation()[0])
+                                  : piece
+                 ->getStringDiminutive()) + "x" + to.toStringNotation();
         if (piece->getColor() == ChessTrainer::IPiece::Color::White) {
             //std::cout << "white move" << std::endl;
             this->move_.emplace_back(std::make_pair(moveNotation, ""));
-        }
-        else {
+        } else {
             //std::cout << "black move" << std::endl;
             //printf("take => Move: %i\n", this->totalMoves_);
             this->totalMoves_++;
@@ -203,8 +213,7 @@ void ChessTrainer::Board::registerMove(const IPiece::shared_ptr& piece,
         if (piece->getColor() == ChessTrainer::IPiece::Color::White) {
             //std::cout << "white move" << std::endl;
             this->move_.emplace_back(std::make_pair(moveNotation, ""));
-        }
-        else {
+        } else {
             //std::cout << "black move" << std::endl;
             //printf("Move: %i\n", this->totalMoves_);
             this->totalMoves_++;
@@ -276,19 +285,31 @@ ChessTrainer::Board::Board(const ChessTrainer::IPiece::rawBoard_t& array) {
     this->board_ = array;
 }
 
-bool ChessTrainer::Board::canMove(const ChessTrainer::IPiece& piece,
-                                  const Coordinates& to) {
+bool ChessTrainer::Board::canMove(const IPiece::helperPieceData& data) {
+    const auto& color = data.piece->getColor();
     return std::any_of(this->begin(),
                        this->end(),
                        [&](const Iterator::value_dereference& val) {
-                           if (*val.first != piece)
+                           if (*val.first != *data.piece)
                                return false;
-                           const auto& availableCases =
+                           if (val.first->getColor() != color)
+                               return false;
+                           const Coordinates from{val.second};
+                           if (data.priorLine >= 0) {
+                               if ((std::isdigit(data.priorLine)
+                                   && from.getY() != (data.priorLine - '0')) ||
+                                   from.getX() != (data.priorLine - 'a')) {
+                                   return false;
+                               }
+                           }
+                           const std::vector<int>& availableCases =
                                val.first->getMoves(val.second,
-                                                   this->board_, {});
+                                                   this->board_,
+                                                   this->lastMove_);
                            return std::find(availableCases.begin(),
                                             availableCases.end(),
-                                            to) != availableCases.end();
+                                            data.coordinates)
+                               != availableCases.end();
                        });
 }
 
@@ -441,7 +462,8 @@ ChessTrainer::Board::Board(const ChessTrainer::Board& b) {
     this->totalMoves_ = b.totalMoves_;
 }
 
-bool ChessTrainer::Board::isCastleSet(Board::castleState_e castle, const IPiece::Color color) const {
+bool ChessTrainer::Board::isCastleSet(Board::castleState_e castle,
+                                      const IPiece::Color color) const {
     return this->castle_[color] & castle;
 }
 

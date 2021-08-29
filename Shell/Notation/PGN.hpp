@@ -9,6 +9,8 @@
 #include <utility>
 #include <ostream>
 #include "../../Board.hpp"
+#include "../../Logger.hpp"
+
 
 namespace ChessTrainer::Notation {
     class PGN {
@@ -109,7 +111,7 @@ namespace ChessTrainer::Notation {
         using GameTag = std::pair<std::string, std::string>;
 
         explicit PGN(const std::string& input);
-        PGN() = default;
+        PGN();
         ~PGN() = default;
         PGN(const PGN& p);
 
@@ -144,13 +146,12 @@ namespace ChessTrainer::Notation {
         static std::optional<IPiece::helperPieceData> checkForTakeMove(const std::string& originalMove,
                                                                        std::string& move,
                                                                        const ChessTrainer::IPiece::Color& color);
-        //using pieceData = std::pair<IPiece::shared_ptr, Coordinates>;
         ChessTrainer::IPiece::helperPieceData getPiece(std::string move,
                                                        const IPiece::Color& color);
         static IPiece::helperPieceData getPieceDataFromNotation(const std::string& originalMove,
                                                                 const std::string& notation,
                                                                 const IPiece::Color& color);
-        void checkForCheckOrMate(std::string& buffer);
+        void removeCheckOrMate(std::string& buffer);
         static Board::gameState_t getCastleType(const std::string& buffer,
                                                 const IPiece::Color& color);
         static IPiece::shared_ptr createPieceFromDiminutive(const IPiece::Color& color,
@@ -168,6 +169,7 @@ namespace ChessTrainer::Notation {
             {"result"}
         };
         Board board_;
+        std::optional<Logger::Logger> logger_;
     };
 }
 

@@ -30,8 +30,10 @@ std::vector<std::string> ChessTrainer::Utils::splitStringBySpace(const std::stri
                                                  -1),
              end = std::sregex_token_iterator(); begin != end; ++begin) {
         vector.emplace_back(*begin);
-        //std::cout << "vec: " << vector.back() << std::endl;
     }
+    for (auto v = vector.begin(); v != vector.end(); ++v)
+        if (v->empty())
+            vector.erase(v);
     return vector;
 }
 

@@ -93,7 +93,7 @@ void ChessTrainer::Notation::PGN::removeRecurrentMoveNumber(std::string& buffer,
     removePart(std::to_string(move) + "...");
 }
 
-void ChessTrainer::Notation::PGN::checkForCheckOrMate(std::string& buffer) {
+void ChessTrainer::Notation::PGN::removeCheckOrMate(std::string& buffer) {
     const auto& pieceIdx = buffer.find_first_of("+#");
     this->board_.removeGameState(Board::IN_CHECK | Board::IN_CHECKMATE);
     if (pieceIdx == std::string::npos)
@@ -153,7 +153,6 @@ ChessTrainer::IPiece::helperPieceData
 ChessTrainer::Notation::PGN::getPiece(std::string move,
                                       const IPiece::Color& color) {
     const std::string& cpy = move.substr();
-    this->checkForCheckOrMate(move);
     const auto& takingPiece =
         ChessTrainer::Notation::PGN::checkForTakeMove(cpy,
                                                       move,
@@ -178,13 +177,12 @@ ChessTrainer::Board::gameState_t ChessTrainer::Notation::PGN::getCastleType(
 void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
                                             int currentMove) {
     auto moveCpy = move.substr();
+    //printf("Move: '%s'\n", move.c_str());
     removeComments(moveCpy);
     this->removeRecurrentMoveNumber(moveCpy, currentMove);
-    const auto& vector = Utils::splitStringBySpace(moveCpy);
-    std::vector<std::string> rawCoordinates;
-    for (const auto& v: vector)
-        if (!v.empty())
-            rawCoordinates.push_back(v);
+    auto rawCoordinates = Utils::splitStringBySpace(moveCpy);
+    for (auto &c: rawCoordinates)
+        this->removeCheckOrMate(c);
     if (rawCoordinates.size() > 2)
         throw Error(Error::INVALID_NUMBER_OF_COORDINATES, move);
     const auto& tryToApplyMoveToBoard = [this](const std::string& move,
@@ -369,6 +367,7 @@ ChessTrainer::Notation::PGN::getTags() const {
 }
 
 ChessTrainer::Notation::PGN::PGN(const ChessTrainer::Notation::PGN& p) {
+    this->logger_.emplace("PGN", "logs/pgn.log");
     this->board_ = p.board_;
     this->tags_ = p.tags_;
     this->error_ = p.error_;
@@ -381,16 +380,31 @@ ChessTrainer::Notation::PGN::getError() const {
 
 void ChessTrainer::Notation::PGN::applyPromotion(const std::string& move,
                                                  ChessTrainer::IPiece::Color color) {
-    const auto equalChar = move.find('=');
-    int moveIdx;
-    Coordinates toCoord(move.substr(0, equalChar));
+    auto moveCpy = move;
+    printf("move: '%s'\n", move.c_str());
+    this->logger_->Debug("Original move", move);
+    printf("movecpy: '%s'\n", moveCpy.c_str());
 
-    if (color == IPiece::Color::Black)
-        moveIdx = 1;
-    else
-        moveIdx = -1;
+    const auto equalChar = moveCpy.find('=');
+    const std::string rawCoordinates = moveCpy.substr(0, equalChar);
+    printf("raw: '%s'\n", rawCoordinates.c_str());
+    Coordinates toCoord;
+    Coordinates fromCoord;
+    const auto takenChar = moveCpy.find('x');
+    if (takenChar != std::string::npos) {
+        const auto piece = this->getPieceDataFromNotation(move, rawCoordinates, color);
+        toCoord = piece.coordinates;
+        fromCoord = Coordinates(color == IPiece::Color::White ? std::string(1, piece.priorLine) + "7" : std::string(1, piece.priorLine) + "1");
+    } else {
+        toCoord = Coordinates(rawCoordinates);
+        int moveIdx;
+        if (color == IPiece::Color::Black)
+            moveIdx = 1;
+        else
+            moveIdx = -1;
+        fromCoord = Coordinates(toCoord.getX(), toCoord.getY() + moveIdx);
+    }
 
-    Coordinates fromCoord(toCoord.getX(), toCoord.getY() + moveIdx);
     const auto& piece = this->board_.getPiece(fromCoord);
     if (!Pawn::isPawn(piece))
         throw Error(Error::NOT_PROMOTING_PAWN);
@@ -403,4 +417,8 @@ void ChessTrainer::Notation::PGN::applyPromotion(const std::string& move,
         throw Error(Error::INVALID_PROMOTED_DIMINUTIVE);
     this->board_.setPiece(fromCoord, std::make_shared<ChessTrainer::IPiece>());
     this->board_.setPiece(toCoord, promotedPiece);
+}
+
+ChessTrainer::Notation::PGN::PGN() {
+    this->logger_.emplace("PGN", "logs/pgn.log");
 }

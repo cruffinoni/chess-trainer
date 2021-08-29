@@ -7,7 +7,7 @@
 //#include "Opening/Parser.hpp"
 //#include "Opening/Database.hpp"
 #include "Leaner/LichessLearner.hpp"
-
+#include "Logger.hpp"
 
 void displayGamesByECO(const ChessTrainer::LichessLearner &l, const std::string& eco) {
     std::cout << "===== Displaying games '" << eco << "' =====" << std::endl;
@@ -31,40 +31,22 @@ void displayGamesByECO(const ChessTrainer::LichessLearner &l, const std::string&
 
 int main() {
     setvbuf(stdout, nullptr, _IONBF, 0);
-    //ChessTrainer::Notation::PGN pgn("[Event \"Rated Blitz game\"]\n"
-    //                                "[LichessURL \"https://lichess.org/RRj72NPW\"]\n"
-    //                                "[Date \"2020.08.01\"]\n"
-    //                                "[Round \"-\"]\n"
-    //                                "[White \"gsoppe\"]\n"
-    //                                "[Black \"LiderChessAcademy\"]\n"
-    //                                "[Result \"0-1\"]\n"
-    //                                "[WhiteTitle \"IM\"]\n"
-    //                                "[BlackTitle \"FM\"]\n"
-    //                                "[WhiteElo \"2412\"]\n"
-    //                                "[BlackElo \"2464\"]\n"
-    //                                "[ECO \"D80\"]\n"
-    //                                "[Opening \"Grünfeld Defense: Stockholm Variation\"]\n"
-    //                                "[TimeControl \"180+0\"]\n"
-    //                                "[UTCDate \"2020.08.01\"]\n"
-    //                                "[UTCTime \"00:00:49\"]\n"
-    //                                "[Termination \"Time forfeit\"]\n"
-    //                                "[WhiteRatingDiff \"-5\"]\n"
-    //                                "[BlackRatingDiff \"+5\"]\n"
+    //ChessTrainer::Notation::PGN pgn("[Event \"?\"]\n"
+    //                                "[Site \"?\"]\n"
+    //                                "[Date \"????.??.??\"]\n"
+    //                                "[Round \"?\"]\n"
+    //                                "[White \"?\"]\n"
+    //                                "[Black \"?\"]\n"
+    //                                "[Result \"*\"]\n"
     //                                "\n"
-    //                                "1. d4 Nf6 2. c4 g6 3. Nc3 d5 4. Bg5 Ne4 5. Nxe4 dxe4 6. e3 Bg7 7. Qd2 c5 8.\n"
-    //                                "d5 Qb6 9. O-O-O Nd7 10. Ne2 Ne5 11. Nc3 f5 12. Be2 Bd7 13. f3 exf3 14. gxf3\n"
-    //                                "Qa5 15. f4 Nf7 16. Bh4 Nd6 17. Qc2 Rb8 18. Qb3 b5 19. cxb5 Nxb5 20. Nxb5\n"
-    //                                "Bxb5 21. d6 c4 22. Bxc4 Bxc4 23. Qxc4 Bxb2+ 24. Kc2 Bg7 25. Rb1 Qd8 26. d7+\n"
-    //                                "Kf8 27. Qe6 Qc7+ 28. Kd3 Qc3+ 29. Ke2 Qc2+ 30. Kf3 Qe4+ 31. Qxe4 fxe4+ 32.\n"
-    //                                "Kxe4 Kf7 33. Rxb8 Rxb8 34. Rd1 Rd8 35. Kd5 Bf6 36. Bxf6 Kxf6 37. Kc6 Ke6\n"
-    //                                "38. Kc7 h5 39. Kxd8 Kf7 40. Kc7 Kf6 41. d8=Q Kf5 42. Rd7 e6 43. Qe7 h4 44.\n"
-    //                                "Rd6 Ke4 45. Qxe6+ Kf3 46. Qxg6 Kf2 47. Qh5 Kxe3 0-1");
+    //                                "1. e4 c6 2. Nf3 d5 3. exd5 cxd5 4. d4 Nc6 5. Nc3 e6 6. Be2 Bd6 7. O-O Nf6 8. Bg5 O-O 9. Qd2 Be7 10. Rfe1 Qc7 11. Bf4 Qd7 12. Bb5 a6 13. Ba4 b5 14. Bb3 Qa7 15. Nh4 Qd7 16. Bh6 gxh6 17. Qxh6 Ne4 18. Nxe4 dxe4 19. Rxe4 f5 20. Rxe6 Kh8 21. Nxf5 Rxf5 22. Rae1 Bf8 23. Qh3 Rg5 24. Re1e4 Qg7 25. g3 Bxe6 26. Bxe6 Re8 27. d5 Ne5 28. f4 Nf3+ 29. Kh1 Rg6 30. f5 Rg5 31. Kg2 Nd4 32. c3 Nxe6 33. dxe6 Bd6 34. g4 Qf6 35. Qd3 Bb8 36. Qd7 Qh6 37. e7 Qxh2+ 38. Kf3 Qg3+ 39. Ke2 Qg2+ 40. Kd1 Qxe4 41. Qxe8+ Rg8 42. Qf7 Qxg4+ 43. Kc2 Qg2+ 44. Kb3 a5 45. e8=Q a4+ 46. Ka3 Bd6+ 47. b4 axb3+ 48. Kxb3 Rxe8 49. Qxe8+ Kg7 50. Qd7+ Kh6 51. Qxd6+ Kg5 52. f6 Qf3 53. Qe5+ Kg6 54. Qxb5 Qxf6 55. a4 Qe6+ 56. Ka3 Qd6+ 57. Qb4 Qd3 58. a5 h5 59. Qb6+ Kg5 60. Qc5+ Kg4 61. Kb4 Qb1+ 62. Kc4 Qa2+ 63. Kd3 Qb1+ 64. Kc4 Qa2+ 65. Kd4 Qd2+ 66. Kc4 Qa2+ 67. Kb5 Qb3+ 68. Qb4+ Qxb4+ 69. Kxb4 h4 70. a6 h3 71. a7 h2 72. a8=Q h1=B 73. Qxh1 Kf4 74. c4 Kg3 75. Qe1+ Kf3 76. Qd2 Ke4 77. Qc3 Kf4 78. Qd3 Ke5 79. c5 Ke6 80. c6 Ke5 81. c7 Ke6 82. Qd4 Ke7 83. c8=Q Kf7 84. Qd6 Kg7 85. Qcc7+ Kg8 86. Qdd8# 1-0");
     //pgn.getBoard().print();
 
 
-    ChessTrainer::LichessLearner l("./lichess_db_standard_rated_2013-01.pgn");
+    ChessTrainer::LichessLearner l("./cut_lichess_elite_2020-08.pgn");
     l.learn();
-    displayGamesByECO(l, "a");
+    //displayGamesByECO(l, "a");
+
     return 0;
 }
 
