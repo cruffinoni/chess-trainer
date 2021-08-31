@@ -18,10 +18,12 @@ namespace ChessTrainer {
         LichessLearner(const std::string& file);
         std::vector<Notation::PGN> getGames() const;
 
-        void learn();
-        std::vector<Notation::PGN> findGamesByECO(const std::string& ECO) const;
+        std::vector<Notation::PGN> findGamesByECO(const std::string& pgn) const;
+        uint32_t countOpening(const std::string& ECO_Opening) const;
 
         private:
+        void learn();
+
         std::ifstream file_;
         bool isValid_;
         std::vector<Notation::PGN> games_;

@@ -19,7 +19,7 @@ bool ChessTrainer::Notation::PGN::updateCursor(const std::string& input,
             {"0-1"},
             {"*"},
         };
-        for (const auto& vgs : validGameState) {
+        for (const auto& vgs: validGameState) {
             const auto& endgame = input.find(vgs);
             if (endgame == std::string::npos)
                 continue;
@@ -174,42 +174,43 @@ ChessTrainer::Board::gameState_t ChessTrainer::Notation::PGN::getCastleType(
         return Board::NONE;
 }
 
+
+void ChessTrainer::Notation::PGN::tryToApplyMoveToBoard(const std::string& move,
+                                                        ChessTrainer::IPiece::Color color) {
+    const auto& castleType = getCastleType(move, color);
+    if (castleType != Board::NONE) {
+        if (!this->board_.doCastle(castleType, color)) {
+            std::ostringstream o;
+            o << "for " << color << " at " << move;
+            throw Error(Error::INVALID_CASTLE, o.str());
+        }
+        return;
+    }
+    if (move.find('=') != std::string::npos) {
+        this->applyPromotion(move, color);
+        return;
+    }
+    const auto& piece = getPiece(move, color);
+    if (!this->board_.movePiece(piece)) {
+        throw Error(Error::ILLEGAL_MOVE, move);
+    }
+}
+
+
 void ChessTrainer::Notation::PGN::applyMove(const std::string& move,
                                             int currentMove) {
     auto moveCpy = move.substr();
-    //printf("Move: '%s'\n", move.c_str());
     removeComments(moveCpy);
     this->removeRecurrentMoveNumber(moveCpy, currentMove);
     auto rawCoordinates = Utils::splitStringBySpace(moveCpy);
-    for (auto &c: rawCoordinates)
+    for (auto& c: rawCoordinates)
         this->removeCheckOrMate(c);
     if (rawCoordinates.size() > 2)
         throw Error(Error::INVALID_NUMBER_OF_COORDINATES, move);
-    const auto& tryToApplyMoveToBoard = [this](const std::string& move,
-                              const IPiece::Color color) {
-        const auto& castleType = getCastleType(move, color);
-        if (castleType != Board::NONE) {
-            if (!this->board_.doCastle(castleType, color)) {
-                std::ostringstream o;
-                o << "for " << color << " at " << move;
-                throw Error(Error::INVALID_CASTLE, o.str());
-            }
-            return;
-        }
-        if (move.find('=') != std::string::npos) {
-            this->applyPromotion(move, color);
-            return;
-        }
-        const auto& piece = getPiece(move, color);
-        if (!this->board_.movePiece(piece)) {
-            //this->board_.print();
-            throw Error(Error::ILLEGAL_MOVE, move);
-        }
-    };
 
-    tryToApplyMoveToBoard(rawCoordinates[0], IPiece::Color::White);
+    this->tryToApplyMoveToBoard(rawCoordinates[0], IPiece::Color::White);
     if (rawCoordinates.size() > 1)
-        tryToApplyMoveToBoard(rawCoordinates[1], IPiece::Color::Black);
+        this->tryToApplyMoveToBoard(rawCoordinates[1], IPiece::Color::Black);
 }
 
 void ChessTrainer::Notation::PGN::readMoves(const std::string& input) {
@@ -279,7 +280,7 @@ size_t ChessTrainer::Notation::PGN::readTags(const std::string& input) {
         throw Error(Error::TAG_QUOTE_UNCLOSED);
     if (tagOpened)
         throw Error(Error::TAG_NOT_CLOSED);
-    for (const auto& rTag : ChessTrainer::Notation::PGN::required_tags_) {
+    for (const auto& rTag: ChessTrainer::Notation::PGN::required_tags_) {
         if (std::find_if(this->tags_.begin(),
                          this->tags_.end(),
                          [rTag](const GameTag& t) {
@@ -316,7 +317,7 @@ bool ChessTrainer::Notation::PGN::isValid() const {
 }
 
 ChessTrainer::Notation::PGN::PGN(const std::string& input)
-    : board_(IPiece::Color::White) {
+    : board_(IPiece::Color::White), logger_("PGN", "pgn.log") {
     //printf("test: %i\n", this->board_.getTotalMoves());
     //printf("input: '%s'\n", input.c_str());
     try {
@@ -366,8 +367,8 @@ ChessTrainer::Notation::PGN::getTags() const {
     return this->tags_;
 }
 
-ChessTrainer::Notation::PGN::PGN(const ChessTrainer::Notation::PGN& p) {
-    this->logger_.emplace("PGN", "logs/pgn.log");
+ChessTrainer::Notation::PGN::PGN(const ChessTrainer::Notation::PGN& p)
+    : logger_(p.logger_) {
     this->board_ = p.board_;
     this->tags_ = p.tags_;
     this->error_ = p.error_;
@@ -380,21 +381,24 @@ ChessTrainer::Notation::PGN::getError() const {
 
 void ChessTrainer::Notation::PGN::applyPromotion(const std::string& move,
                                                  ChessTrainer::IPiece::Color color) {
-    auto moveCpy = move;
-    printf("move: '%s'\n", move.c_str());
-    this->logger_->Debug("Original move", move);
-    printf("movecpy: '%s'\n", moveCpy.c_str());
+    //printf("move: '%s'\n", move.c_str());
+    //this->logger_.Debug("Original move", move);
+    //printf("movecpy: '%s'\n", moveCpy.c_str());
 
-    const auto equalChar = moveCpy.find('=');
-    const std::string rawCoordinates = moveCpy.substr(0, equalChar);
-    printf("raw: '%s'\n", rawCoordinates.c_str());
+    const auto equalChar = move.find('=');
+    const std::string rawCoordinates = move.substr(0, equalChar);
+    //printf("raw: '%s'\n", rawCoordinates.c_str());
     Coordinates toCoord;
     Coordinates fromCoord;
-    const auto takenChar = moveCpy.find('x');
+    const auto takenChar = move.find('x');
     if (takenChar != std::string::npos) {
-        const auto piece = this->getPieceDataFromNotation(move, rawCoordinates, color);
+        const auto piece = this->getPieceDataFromNotation(move,
+                                                          rawCoordinates,
+                                                          color);
         toCoord = piece.coordinates;
-        fromCoord = Coordinates(color == IPiece::Color::White ? std::string(1, piece.priorLine) + "7" : std::string(1, piece.priorLine) + "1");
+        fromCoord = Coordinates(
+            color == IPiece::Color::White ? std::string(1, piece.priorLine) +
+                "7" : std::string(1, piece.priorLine) + "1");
     } else {
         toCoord = Coordinates(rawCoordinates);
         int moveIdx;
@@ -419,6 +423,5 @@ void ChessTrainer::Notation::PGN::applyPromotion(const std::string& move,
     this->board_.setPiece(toCoord, promotedPiece);
 }
 
-ChessTrainer::Notation::PGN::PGN() {
-    this->logger_.emplace("PGN", "logs/pgn.log");
+ChessTrainer::Notation::PGN::PGN() : logger_("PGN", "pgn.log") {
 }

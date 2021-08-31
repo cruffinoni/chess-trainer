@@ -52,6 +52,7 @@ namespace ChessTrainer::Notation {
             }
             Error() : Error(NONE, "") {}
             Error(ErrorType parsingError) : Error(parsingError, "") {}
+            Error(const Error &e) : _err(e._err), _arg(e._arg), _message(e._message) {}
 
             friend std::ostream& operator<<(std::ostream& output,
                                             const Error& e) {
@@ -102,7 +103,7 @@ namespace ChessTrainer::Notation {
                 "'%arg%' is an invalid piece notation, please check",
                 "%arg% is an illegal move",
                 "the game shouldn't continue if one of the players is in checkmate",
-                "invalid castle: %arg%",
+                "invalid castle %arg%",
                 "the promoted piece is not a pawn",
                 "the promoted pawn must be the same color as the player's pawn",
                 "%arg% is an invalid character while promoting piece"
@@ -138,6 +139,7 @@ namespace ChessTrainer::Notation {
         void readMoves(const std::string& input);
 
         void applyMove(const std::string& move, int currentMove);
+        void tryToApplyMoveToBoard(const std::string &move, IPiece::Color color);
         void applyPromotion(const std::string& move, ChessTrainer::IPiece::Color color);
         static void removeComments(std::string& buffer);
         static void removeRecurrentMoveNumber(std::string& buffer,
@@ -169,7 +171,7 @@ namespace ChessTrainer::Notation {
             {"result"}
         };
         Board board_;
-        std::optional<Logger::Logger> logger_;
+        Logger::Logger logger_;
     };
 }
 
